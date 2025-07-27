@@ -1,0 +1,20 @@
+# YDB capacity calculator
+
+## Terms
+
+Specific terms used in stories below are:
+
+- cluster – A YDB cluster consists of [storage](https://ydb.tech/docs/en/concepts/glossary#storage-node) and [database](https://ydb.tech/docs/en/concepts/glossary#database-node) nodes. As the data stored in YDB is available only via queries and API calls, both types of nodes are essential for [database availability](https://ydb.tech/docs/en/concepts/topology#database-availability). However, [distributed storage](https://ydb.tech/docs/en/concepts/glossary#distributed-storage) consisting of storage nodes has the most impact on the cluster's fault tolerance and ability to persist data reliably. During the initial cluster deployment, an appropriate distributed storage [operating mode](https://ydb.tech/docs/en/concepts/topology#cluster-config) needs to be chosen according to the expected workload and [database availability](https://ydb.tech/docs/en/concepts/topology#database-availability)requirements. The operation mode cannot be changed after the initial cluster setup, making it one of the key decisions to consider when planning a new YDB deployment.
+- **Database nodes** (also known as **tenant nodes** or **compute nodes**) serve user queries addressed to a specific logical [database](https://ydb.tech/docs/en/concepts/glossary#database). Their state is only in memory and can be recovered from the [Distributed Storage](https://ydb.tech/docs/en/concepts/glossary#distributed-storage). All database nodes of a given [YDB cluster](https://ydb.tech/docs/en/concepts/topology) can be considered its compute layer. Thus, adding database nodes and allocating extra CPU and RAM to them are the main ways to increase the database's compute resources.
+- **Storage nodes** are stateful and responsible for long-term persisting pieces of data. All storage nodes of a given [YDB cluster](https://ydb.tech/docs/en/concepts/glossary#cluster) are called [Distributed Storage](https://ydb.tech/docs/en/concepts/glossary#distributed-storage) and can be considered the cluster's storage layer. Thus, adding extra storage nodes and their disks are the main ways to increase the cluster's storage capacity and input/output throughput.
+  Storage group – A **storage group**, **Distributed storage group**, or **Blob storage group** is a location for reliable data storage similar to [RAID](https://en.wikipedia.org/wiki/RAID), but using disks of multiple servers. Depending on the chosen [cluster topology](https://ydb.tech/docs/en/concepts/glossary#topology), storage groups use different algorithms to ensure high availability, similar to [standard RAID levels](https://en.wikipedia.org/wiki/Standard_RAID_levels).
+- [Distributed storage](https://ydb.tech/docs/en/concepts/glossary#distributed-storage) typically manages a large number of relatively small storage groups. Each group can be assigned to a specific [database](https://ydb.tech/docs/en/concepts/glossary#database) to increase disk capacity and input/output throughput available to this database.
+
+## Non-functional
+
+I am thinking of a simple web-app based on serverless functions and other serveress technologies.
+
+## User stories
+
+    1. As a capacity planner I want to define server configuration in terms of cores per host, nvme and hdd devices per host and their respective size in gigabytes, provide how many storage groups are required  on hdd and nvme, how many cores for databases nodes are requested and as a result receive number of servers required on order to order them
+    2. As an SRE I want to input server configuration of servers I have in terms of CPU cores per host, nvme and hdd storage devices and their respective size per host, some constraints (cores reserved for system needs, share of space on every devices that might be used for user data) and get number.
