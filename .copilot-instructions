@@ -1,0 +1,32 @@
+# GitHub Copilot Instructions
+
+## Project Context
+
+This is a client-side capacity planning tool for YDB database clusters. All logic runs in the browser using vanilla JavaScript.
+
+## Code Style Preferences
+
+- Use modern ES6+ JavaScript features
+- Prefer const/let over var
+- Use arrow functions for callbacks
+- Write self-documenting function names
+- Include JSDoc comments for complex functions
+- Use semantic HTML elements
+- Mobile-first responsive CSS
+- No external dependencies (vanilla JS only)
+
+## Key Business Logic
+
+- Calculate servers needed based on CPU cores and storage requirements
+- Handle YDB-specific concepts: storage groups, database nodes, storage nodes
+- Account for system resource reservations
+- Support both greenfield planning and existing infrastructure analysis
+
+## When generating code
+
+1. Always validate inputs
+2. Handle edge cases gracefully
+3. Use clear variable names that reflect YDB terminology
+4. Include helpful error messages
+5. Make UI responsive and accessible
+6. Add comments explaining business logic
