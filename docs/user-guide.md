@@ -49,7 +49,6 @@ The results section will display:
 - Reserve calculation: 1% of required VDisks or minimum 18 VDisks, whichever is greater
 
 ### CPU Allocation
-
 - System cores reserved: 2-4 cores per server for OS and system processes
 - Storage cores reserved: 6 cores per NVMe drive and 0.5 cores per HDD drive
 - Remaining cores are available for database nodes
@@ -83,6 +82,9 @@ The application automatically saves your server configuration in your browser's 
 - Your server configuration is preserved between page visits
 - Capacity requirement fields are cleared each time for new calculations
 - Data is stored locally in your browser and is not sent to any server
+
+## License
+This project is licensed under the Apache License, Version 2.0 - see the [LICENSE](../LICENSE) file for details.
 
 ## Running the Application
 Simply open the `index.html` file in any modern web browser. No internet connection is required for the calculations, though an internet connection is needed to load the YDB logo.

@@ -90,5 +90,8 @@ The application has been tested with the example data from the requirements:
 - Requirements: 10 HDD storage groups, 5 NVMe storage groups, 100 database cores, 5000 GB database RAM
 - Result: 32 servers required (dominant resource: storage groups)
 
+## License
+This project is licensed under the Apache License, Version 2.0 - see the [LICENSE](../LICENSE) file for details.
+
 ## Usage
 To use the application, simply open `index.html` in any modern web browser. No internet connection is required for the calculations, though an internet connection is needed to load the YDB logo.
