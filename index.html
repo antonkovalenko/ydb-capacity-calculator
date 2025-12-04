@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YDB Capacity Calculator</title>
+    <title>Capacity Calculator</title>
     <link rel="icon" href="https://storage.yandexcloud.net/ydb-site-assets/ydb_icon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="css/ydb-tech.css">
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
@@ -17,9 +18,20 @@
     </header>
 
     <main>
+        <!-- Story Toggle -->
+        <div class="story-toggle" role="tablist" aria-label="Stories">
+            <button id="story1-toggle" class="toggle-button active" role="tab">Story 1: Calculate Servers</button>
+            <button id="story2-toggle" class="toggle-button" role="tab">Story 2: Calculate Capacity</button>
+        </div>
+
+        <!-- Optional: hide/show server configuration -->
+        <div class="server-config-toggle" style="text-align:center; margin-bottom:12px;">
+            <button id="toggle-server-config" class="toggle-button">Hide Server Configuration</button>
+        </div>
+
         <form id="calculator-form">
             <!-- Server Configuration Section -->
-            <section class="form-section">
+            <section class="form-section" id="server-config-section">
                 <h2>Server Configuration</h2>
                 <div class="form-grid">
                     <div class="form-group">
@@ -57,8 +69,8 @@
                 </div>
             </section>
 
-            <!-- Capacity Requirements Section -->
-            <section class="form-section">
+            <!-- Story 1: Capacity Requirements Section -->
+            <section class="form-section" id="story1-section">
                 <h2>Capacity Requirements</h2>
                 <div class="form-grid">
                     <div class="form-group">
@@ -80,12 +92,25 @@
                 </div>
             </section>
 
-            <button type="submit" id="calculate-button">Calculate Servers</button>
+            <!-- Story 2: Server Count Section -->
+            <section class="form-section hidden" id="story2-section">
+                <h2>Server Count</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="server-count">Number of Servers:</label>
+                        <input type="number" id="server-count" min="1" step="1" value="1">
+                    </div>
+                </div>
+            </section>
+
+            <div style="text-align:center; margin-top:10px;">
+                <button type="submit" id="calculate-button" class="calculate-button">Calculate</button>
+            </div>
         </form>
 
-        <!-- Results Section -->
-        <section id="results-section" class="hidden">
-            <h2>Calculation Results</h2>
+        <!-- Story 1 Results Section -->
+        <section id="story1-results" class="hidden">
+            <h2>Calculation Results - Story 1</h2>
             <div class="results-grid">
                 <div class="result-item">
                     <span class="result-label">Servers required by storage groups:</span>
@@ -106,6 +131,37 @@
                 <div class="result-item final">
                     <span class="result-label">Final server count:</span>
                     <span class="result-value" id="final-servers-result"></span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Story 2 Results Section -->
+        <section id="story2-results" class="hidden">
+            <h2>Calculation Results - Story 2</h2>
+            <div class="results-grid">
+                <div class="result-item">
+                    <span class="result-label">Storage Groups:</span>
+                    <span class="result-value"></span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">- HDD:</span>
+                    <span class="result-value" id="hdd-storage-groups-result"></span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">- NVMe:</span>
+                    <span class="result-value" id="nvme-storage-groups-result"></span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Database Resources:</span>
+                    <span class="result-value"></span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">- Cores:</span>
+                    <span class="result-value" id="database-cores-result"></span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">- RAM (GB):</span>
+                    <span class="result-value" id="database-ram-result"></span>
                 </div>
             </div>
         </section>
