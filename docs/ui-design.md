@@ -2,53 +2,16 @@
 
 ## Layout Structure
 
-```(txt)
-+------------------------------------------------------------+
-|  YDB Capacity Calculator                        [YDB Logo] |
-+------------------------------------------------------------+
-|  Server Configuration                                      |
-|  +------------------------------------------------------+  |
-|  | Cores per server: [____]                             |  |
-|  | RAM per server (GB): [____]                          |  |
-|  |                                                      |  |
-|  | NVMe devices per server: [____]                      |  |
-|  | NVMe device size (TB): [____]                        |  |
-|  |                                                      |  |
-|  | HDD devices per server: [____]                       |  |
-|  | HDD device size (TB): [____]                         |  |  |
-|  |                                                      |  |
-|  | VDisks per HDD PDisks: [____]                        |  |
-|  | VDisks per NVMe PDisks: [____]                       |  |
-|  +------------------------------------------------------+  |
-|                                                            |
-|  Capacity Requirements                                     |
-|  +------------------------------------------------------+  |
-|  | HDD Storage Groups: [____]                           |  |
-|  | NVMe Storage Groups: [____]                          |  |
-|  |                                                      |  |
-|  | Database Node Cores: [____]                          |  |
-|  | Database Node RAM (GB): [____]                       |  |
-|  +------------------------------------------------------+  |
-|                                                            |
-|  [ Calculate Servers ]                                     |
-|                                                            |
-|  Results                                                   |
-|  +------------------------------------------------------+  |
-|  | Servers required by storage groups: [____]           |  |
-|  | Servers required by cores: [____]                    |  |
-|  | Servers required by RAM: [____]                      |  |
-|  |                                                      |  |
-|  | Dominant resource: [____]                            |  |
-|  | Final server count: [____]                           |  |
-|  +------------------------------------------------------+  |
-+------------------------------------------------------------+
-```
+I want to be able to hide server configuration and enter see story selectors as large buttons.
+When I select a story I want to enter required parameters for the story in a form layout.
+
+When I press "Calculate" button I want to see results below the button in a clear and structured way.
 
 ## Component Breakdown
 
 ### 1. Header Section
 
-- Title: "YDB Capacity Calculator"
+- Title: "Capacity Calculator"
 - YDB Logo from: https://storage.yandexcloud.net/ydb-site-assets/ydb_icon.svg
 - Brief description of the tool
 
@@ -78,10 +41,9 @@
 
 ## Color Scheme and Styling
 
-Since we don't have the ydb-styles.css file, we'll use a clean, modern design with:
+Use YDB styles from ydb-styles.css:
 
 - Primary color: YDB blue (#007bff or similar from YDB branding)
-- Secondary colors: Grays for backgrounds and borders
 - Clean typography with good readability
 - Adequate spacing between elements
 - Responsive design for different screen sizes

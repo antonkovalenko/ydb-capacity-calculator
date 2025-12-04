@@ -22,7 +22,7 @@
   "editor.inlineSuggest.enabled": true,
   "editor.suggestSelection": "first",
   "editor.tabCompletion": "on",
-  "editor.wordBasedSuggestions": false,
+  "editor.wordBasedSuggestions": "off",
   "editor.quickSuggestions": {
     "other": true,
     "comments": true,

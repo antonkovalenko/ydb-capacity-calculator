@@ -21,3 +21,9 @@
 - Server: 32 cores, 1024 GB of RAM, 2x1TB NVMe, 4x4TB HDD
 - Requirements: 10 HDD storage groups, 5 NVMe storage groups, database nodes: 100 cores, 5000 GB of RAM
 - Output: "You need X servers"
+
+## Story 2: Calculate the amount of groups, RAM and cores provided by specified server configuration and server count
+
+**As a** capacity planner  
+**I want to** specify server configuration and server count  
+**So that** I receive the amount of storage groups, RAM and cores provided by specified server configuration and server count

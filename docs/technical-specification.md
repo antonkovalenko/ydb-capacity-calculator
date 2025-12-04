@@ -1,88 +1,138 @@
-# Technical Specification - YDB Capacity Calculator
+# YDB Capacity Calculator - Technical Specification
 
 ## Overview
-This document outlines the technical implementation plan for the YDB Capacity Calculator, a single-page application that helps capacity planners determine the number of servers required for a YDB cluster based on specified hardware configurations and capacity requirements.
+This document describes the technical implementation of the YDB Capacity Calculator, a single-page application that helps capacity planners determine server requirements for YDB clusters based on capacity needs or calculate capacity provided by a given server configuration.
 
-## Application Structure
-- Single HTML file with embedded CSS and JavaScript
-- Responsive design using modern UI principles
-- Client-side calculations in JavaScript
-- YDB branding with official logo and colors
+## Application Architecture
+The application is a client-side single-page application built with:
+- HTML5 for structure
+- CSS3 for styling
+- Vanilla JavaScript for functionality
+- Local storage for data persistence
 
-## Key Components
+## Core Components
 
-### 1. Input Section
-- Server Configuration Form:
-  - CPU cores per server
-  - RAM per server (GB)
-  - NVMe storage devices per server
-  - NVMe device size (TB)
-  - HDD storage devices per server
-  - HDD device size (TB)
-  - VDisks per HDD PDisks
-  - VDisks per NVMe PDisks
+### 1. HTML Structure
+- Header with application title and description
+- Story toggle buttons for switching between use cases
+- Server configuration input section
+- Capacity requirements input section (Story 1)
+- Server count input (Story 2)
+- Calculate button
+- Results display section
+- Footer with YDB information
 
-- Capacity Requirements Form:
-  - Number of HDD storage groups
-  - Number of NVMe storage groups
-  - Database node cores required
-  - Database node RAM required (GB)
+### 2. CSS Styling
+- Responsive design using CSS Grid and Flexbox
+- YDB color scheme implementation
+- Mobile-friendly layout
+- Clear visual hierarchy
+- Interactive elements with hover states
 
-### 2. Calculation Engine
-- Storage group calculations (9 VDisks per group)
-- Server count calculations by resource type:
-  - Storage groups (HDD and NVMe)
-  - CPU cores for database nodes
-  - RAM for database nodes
-- Minimum cluster size enforcement (12 nodes)
-- Dominant resource identification
+### 3. JavaScript Functionality
+- Form input validation
+- Calculation logic for both stories
+- Local storage integration
+- Dynamic UI updates
+- Error handling
 
-### 3. Results Display
-- Server count by resource type
-- Dominant resource identification
-- Relative differences between resource requirements
-- Clear presentation of final server count
+## Implementation Details
 
-## Business Logic Implementation
+### Story 1: Calculate Servers Needed
+This functionality allows users to determine how many servers are needed based on capacity requirements.
 
-### Storage Group Calculations
-1. Each storage group consists of 9 VDisks
-2. Calculate required VDisks: (groups * 9) + reserve
-3. Reserve: 1% or minimum 18 VDisks
-4. Calculate servers needed based on VDisks per server
+#### Calculation Process
+1. **Storage Groups Calculation**
+   - Each storage group consists of 9 VDisks
+   - Reserve calculation (1% or minimum 18 VDisks)
+   - VDisks per server calculation based on device count and VDisks per device
+   - Server count calculation based on required VDisks
 
-### CPU Calculations
-1. System cores reserved: 2-4 per server
-2. Storage cores: 6 per NVMe drive, 0.5 per HDD drive
-3. Available cores: Total cores - system cores - storage cores
-4. Servers by CPU: Required database cores / available cores per server
+2. **CPU Cores Calculation**
+   - System reserve: 2-4 cores per server (using 2 as minimum)
+   - Storage reserve: 6 cores per NVMe device, 0.5 per HDD device
+   - Available cores for database nodes
+   - Server count calculation based on required database cores
 
-### RAM Calculations
-1. System RAM reserved: 4GB per server
-2. Storage RAM: 6GB per NVMe device, 2GB per HDD device
-3. Available RAM: Total RAM - system RAM - storage RAM
-4. Servers by RAM: Required database RAM / available RAM per server
+3. **RAM Calculation**
+   - System reserve: 4GB per server
+   - Storage reserve: 6GB per NVMe device, 2GB per HDD device
+   - Available RAM for database nodes
+   - Server count calculation based on required database RAM
 
-### Final Calculation
-1. Calculate servers needed for each resource type
-2. Identify dominant resource (highest server count)
-3. Present final server count based on dominant resource
-4. Show relative differences between resource requirements
+4. **Final Server Count**
+   - Takes the maximum of storage, CPU, and RAM requirements
+   - Ensures minimum of 12 servers
 
-## UI/UX Design
-- Clean, modern interface with YDB branding
-- Form sections with clear labels and input fields
-- Real-time validation with helpful error messages
-- Results displayed in an easy-to-understand format
-- Responsive design for various screen sizes
+### Story 2: Calculate Capacity Provided
+This functionality allows users to determine what capacity is provided by a given server configuration and server count.
 
-## Validation Rules
-- All numeric inputs must be positive numbers
-- At least one storage type (HDD or NVMe) must be specified
-- Minimum cluster size enforced (12 nodes)
-- Reasonable value ranges for all inputs
+#### Calculation Process
+1. **Storage Groups Calculation**
+   - Total VDisks calculation for HDD and NVMe
+   - Reserve application (1% or minimum 18 VDisks)
+   - Available VDisks after reserve
+   - Storage groups calculation (9 VDisks per group)
 
-## Dependencies
-- No external libraries or frameworks
-- Pure HTML, CSS, and JavaScript
-- YDB logo from: https://storage.yandexcloud.net/ydb-site-assets/ydb_icon.svg
+2. **Database Cores Calculation**
+   - System reserve: 2 cores per server
+   - Storage reserve: 6 cores per NVMe device, 0.5 per HDD device
+   - Available cores per server for database nodes
+   - Total database cores across all servers
+
+3. **Database RAM Calculation**
+   - System reserve: 4GB per server
+   - Storage reserve: 6GB per NVMe device, 2GB per HDD device
+   - Available RAM per server for database nodes
+   - Total database RAM across all servers
+
+## Data Persistence
+- Server configuration is saved to local storage on any change
+- Configuration is loaded from local storage on page load
+- Capacity requirements are not persisted (user may want different values each time)
+
+## Error Handling
+- Input validation for all numeric fields
+- Clear error messages for invalid inputs
+- Prevention of negative or zero server counts
+- Handling of edge cases (e.g., no devices specified)
+
+## Responsive Design
+- Adapts to different screen sizes
+- Mobile-friendly layout
+- Appropriate font sizes and spacing for all devices
+- Accessible color scheme
+
+## Business Rules Implementation
+All business rules from the requirements document are implemented:
+- Storage group calculation with 9 VDisks per group
+- Reserve calculation (1% or minimum 18 VDisks)
+- System resource reservations (cores and RAM)
+- Storage device resource reservations
+- Calculation of available resources for database nodes
+- Minimum server count enforcement (12 servers)
+
+## File Structure
+- `index.html`: Main HTML file
+- `css/styles.css`: Styling
+- `js/calculator.js`: Calculation logic
+- `docs/`: Documentation files
+  - `requirements.md`: Project requirements
+  - `user-stories.md`: User stories
+  - `business-rules.md`: Business rules
+  - `technical-specification.md`: This document
+  - `story2-technical-spec.md`: Detailed specification for Story 2
+  - `ui-design.md`: UI design documentation
+  - `user-guide.md`: User instructions
+  - `project-summary.md`: Project overview
+  - `test-results.md`: Testing results
+
+## Testing
+The application has been tested with various configurations to ensure:
+- Correct calculation of server requirements
+- Proper application of business rules
+- Accurate handling of edge cases
+- Responsive design on different devices
+- Data persistence functionality
+- Correct behavior when switching between stories
+

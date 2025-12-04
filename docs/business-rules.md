@@ -22,6 +22,7 @@
 ## Server configuration
 
 Only one type of servers is used in calculation. Configuration is defined by:
+
 - number of CPU cores per server
 - number of RAM per server in GB
 - number of NVMe storage devices attached to every server
