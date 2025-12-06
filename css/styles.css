@@ -92,6 +92,47 @@ form {
     margin-bottom: 25px;
 }
 
+/* Subsection headings inside a form-section */
+.subsection h3 {
+    margin-top: 0;
+    margin-bottom: 12px;
+    color: var(--ydb-dark-gray);
+    font-size: 1.05em;
+}
+
+/* Storage grid: three columns for storage-specific inputs */
+.storage-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+.server-summary {
+    padding: 12px;
+    margin-top: 12px;
+    background: linear-gradient(90deg, rgba(0,123,255,0.05), rgba(0,0,0,0.01));
+    border: 1px dashed var(--ydb-border);
+    border-radius: 6px;
+    color: var(--ydb-dark-gray);
+}
+
+.required {
+    color: var(--ydb-danger);
+    font-weight: 600;
+    margin-left: 4px;
+}
+
+.warning-message {
+    color: var(--ydb-warning);
+    font-size: 0.9em;
+    margin-top: 6px;
+}
+
+.input-invalid {
+    border-color: var(--ydb-danger) !important;
+    box-shadow: 0 0 0 3px rgba(220,53,69,0.08);
+}
+
 /* Two-column form grid */
 .form-grid {
     display: grid;
@@ -249,5 +290,9 @@ footer {
         width: 100%;
         max-width: 300px;
         margin-bottom: 10px;
+    }
+    
+    .storage-grid {
+        grid-template-columns: 1fr;
     }
 }

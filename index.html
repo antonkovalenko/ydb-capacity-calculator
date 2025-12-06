@@ -20,8 +20,8 @@
     <main>
         <!-- Story Toggle -->
         <div class="story-toggle" role="tablist" aria-label="Stories">
-            <button id="story1-toggle" class="toggle-button active" role="tab">Story 1: Calculate Servers</button>
-            <button id="story2-toggle" class="toggle-button" role="tab">Story 2: Calculate Capacity</button>
+            <button id="story1-toggle" class="toggle-button active" role="tab">Capacity Planner</button>
+            <button id="story2-toggle" class="toggle-button" role="tab">Provided Capacity</button>
         </div>
 
         <!-- Optional: hide/show server configuration -->
@@ -33,61 +33,84 @@
             <!-- Server Configuration Section -->
             <section class="form-section" id="server-config-section">
                 <h2>Server Configuration</h2>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="cores-per-server">Cores per server:</label>
-                        <input type="number" id="cores-per-server" min="1" step="1" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="ram-per-server">RAM per server (GB):</label>
-                        <input type="number" id="ram-per-server" min="1" step="1" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="nvme-devices-per-server">NVMe devices per server:</label>
-                        <input type="number" id="nvme-devices-per-server" min="0" step="1" value="0">
-                    </div>
-                    <div class="form-group">
-                        <label for="nvme-device-size">NVMe device size (TB):</label>
-                        <input type="number" id="nvme-device-size" min="0" step="0.1" value="0">
-                    </div>
-                    <div class="form-group">
-                        <label for="hdd-devices-per-server">HDD devices per server:</label>
-                        <input type="number" id="hdd-devices-per-server" min="0" step="1" value="0">
-                    </div>
-                    <div class="form-group">
-                        <label for="hdd-device-size">HDD device size (TB):</label>
-                        <input type="number" id="hdd-device-size" min="0" step="0.1" value="0">
-                    </div>
-                    <div class="form-group">
-                        <label for="vdisks-per-hdd-pdisk">VDisks per HDD PDisks:</label>
-                        <input type="number" id="vdisks-per-hdd-pdisk" min="1" step="1" value="1">
-                    </div>
-                    <div class="form-group">
-                        <label for="vdisks-per-nvme-pdisk">VDisks per NVMe PDisks:</label>
-                        <input type="number" id="vdisks-per-nvme-pdisk" min="1" step="1" value="1">
+
+                <div class="subsection">
+                    <h3>Compute</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="cores-per-server">Cores per server <span class="required">*</span></label>
+                            <input type="number" id="cores-per-server" min="1" step="1" placeholder="e.g. 32" required aria-required="true">
+                        </div>
+                        <div class="form-group">
+                            <label for="ram-per-server">RAM per server (GB) <span class="required">*</span></label>
+                            <input type="number" id="ram-per-server" min="1" step="1" placeholder="e.g. 1024" required aria-required="true">
+                        </div>
                     </div>
                 </div>
+
+                <div class="subsection">
+                    <h3>Storage</h3>
+                    <div class="storage-grid">
+                        <div class="form-group">
+                            <label for="nvme-devices-per-server">NVMe devices per server:</label>
+                            <input type="number" id="nvme-devices-per-server" min="0" max="16" step="1" value="0" placeholder="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="nvme-device-size">NVMe device size (TB):</label>
+                            <input type="number" id="nvme-device-size" min="0" step="0.1" value="0" placeholder="e.g. 1">
+                        </div>
+                        <div class="form-group">
+                            <label for="vdisks-per-nvme-pdisk">VDisks per NVMe PDisk:</label>
+                            <input type="number" id="vdisks-per-nvme-pdisk" min="1" max="32" step="1" value="16" title="Typical default 16">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="hdd-devices-per-server">HDD devices per server:</label>
+                            <input type="number" id="hdd-devices-per-server" min="0" max="16" step="1" value="0" placeholder="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="hdd-device-size">HDD device size (TB):</label>
+                            <input type="number" id="hdd-device-size" min="0" step="0.1" value="0" placeholder="e.g. 4">
+                        </div>
+                        <div class="form-group">
+                            <label for="vdisks-per-hdd-pdisk">VDisks per HDD PDisk:</label>
+                            <input type="number" id="vdisks-per-hdd-pdisk" min="1" max="16" step="1" value="8" title="Typical default 8">
+                        </div>
+                    </div>
+                </div>
+
+                <div id="server-config-summary" class="server-summary hidden" aria-live="polite"></div>
             </section>
 
             <!-- Story 1: Capacity Requirements Section -->
             <section class="form-section" id="story1-section">
                 <h2>Capacity Requirements</h2>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="hdd-storage-groups">HDD Storage Groups:</label>
-                        <input type="number" id="hdd-storage-groups" min="0" step="1" value="0">
+
+                <div class="subsection">
+                    <h3>Storage Requirements</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="hdd-storage-groups">HDD Storage Groups:</label>
+                            <input type="number" id="hdd-storage-groups" min="0" step="1" value="0" placeholder="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="nvme-storage-groups">NVMe Storage Groups:</label>
+                            <input type="number" id="nvme-storage-groups" min="0" step="1" value="0" placeholder="0">
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="nvme-storage-groups">NVMe Storage Groups:</label>
-                        <input type="number" id="nvme-storage-groups" min="0" step="1" value="0">
-                    </div>
-                    <div class="form-group">
-                        <label for="database-cores">Database Node Cores:</label>
-                        <input type="number" id="database-cores" min="0" step="1" value="0">
-                    </div>
-                    <div class="form-group">
-                        <label for="database-ram">Database Node RAM (GB):</label>
-                        <input type="number" id="database-ram" min="0" step="1" value="0">
+                </div>
+
+                <div class="subsection">
+                    <h3>Compute Requirements</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="database-cores">Database Node Cores:</label>
+                            <input type="number" id="database-cores" min="0" step="1" value="0" placeholder="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="database-ram">Database Node RAM (GB):</label>
+                            <input type="number" id="database-ram" min="0" step="1" value="0" placeholder="0">
+                        </div>
                     </div>
                 </div>
             </section>
@@ -108,36 +131,36 @@
             </div>
         </form>
 
-        <!-- Story 1 Results Section -->
-        <section id="story1-results" class="hidden">
-            <h2>Calculation Results - Story 1</h2>
+        <!-- Capacity Planner Results -->
+        <section id="story1-results" class="hidden" aria-live="polite">
+            <h2>Calculation Results — Capacity Planner</h2>
             <div class="results-grid">
-                <div class="result-item">
+                <div id="storage-servers-item" class="result-item">
                     <span class="result-label">Servers required by storage groups:</span>
                     <span class="result-value" id="storage-servers-result"></span>
                 </div>
-                <div class="result-item">
+                <div id="cores-servers-item" class="result-item">
                     <span class="result-label">Servers required by cores:</span>
                     <span class="result-value" id="cores-servers-result"></span>
                 </div>
-                <div class="result-item">
+                <div id="ram-servers-item" class="result-item">
                     <span class="result-label">Servers required by RAM:</span>
                     <span class="result-value" id="ram-servers-result"></span>
                 </div>
-                <div class="result-item dominant">
+                <div id="dominant-item" class="result-item">
                     <span class="result-label">Dominant resource:</span>
                     <span class="result-value" id="dominant-resource-result"></span>
                 </div>
-                <div class="result-item final">
+                <div id="final-item" class="result-item">
                     <span class="result-label">Final server count:</span>
                     <span class="result-value" id="final-servers-result"></span>
                 </div>
             </div>
         </section>
 
-        <!-- Story 2 Results Section -->
-        <section id="story2-results" class="hidden">
-            <h2>Calculation Results - Story 2</h2>
+        <!-- Provided Capacity Results -->
+        <section id="story2-results" class="hidden" aria-live="polite">
+            <h2>Calculation Results — Provided Capacity</h2>
             <div class="results-grid">
                 <div class="result-item">
                     <span class="result-label">Storage Groups:</span>

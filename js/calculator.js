@@ -30,8 +30,9 @@ function loadServerConfigFromLocalStorage() {
         document.getElementById('nvme-device-size').value = serverConfig.nvmeDeviceSize || '0';
         document.getElementById('hdd-devices-per-server').value = serverConfig.hddDevicesPerServer || '0';
         document.getElementById('hdd-device-size').value = serverConfig.hddDeviceSize || '0';
-        document.getElementById('vdisks-per-hdd-pdisk').value = serverConfig.vdisksPerHddPdisk || '1';
-        document.getElementById('vdisks-per-nvme-pdisk').value = serverConfig.vdisksPerNvmePdisk || '1';
+        // sensible defaults per business rules
+        document.getElementById('vdisks-per-hdd-pdisk').value = serverConfig.vdisksPerHddPdisk || '8';
+        document.getElementById('vdisks-per-nvme-pdisk').value = serverConfig.vdisksPerNvmePdisk || '16';
     }
 }
 
@@ -102,6 +103,17 @@ function toggleServerConfig() {
 
     const hidden = section.classList.toggle('hidden');
     btn.textContent = hidden ? 'Show Server Configuration' : 'Hide Server Configuration';
+
+    const summaryEl = document.getElementById('server-config-summary');
+    if (hidden) {
+        // show brief configuration summary
+        if (summaryEl) {
+            summaryEl.textContent = buildServerConfigSummary();
+            summaryEl.classList.remove('hidden');
+        }
+    } else {
+        if (summaryEl) summaryEl.classList.add('hidden');
+    }
 }
 
 // Main calculation function
@@ -232,8 +244,70 @@ function validateServerConfig(serverConfig) {
         showErrorMessage('ram-per-server', "RAM per server must be a positive number.");
         isValid = false;
     }
+
+    // Validate vdisks per pdisk ranges
+    if (serverConfig.vdisksPerHddPdisk < 1 || serverConfig.vdisksPerHddPdisk > 16) {
+        showErrorMessage('vdisks-per-hdd-pdisk', 'VDisks per HDD PDisk should be between 1 and 16.');
+        isValid = false;
+    }
+
+    if (serverConfig.vdisksPerNvmePdisk < 1 || serverConfig.vdisksPerNvmePdisk > 32) {
+        showErrorMessage('vdisks-per-nvme-pdisk', 'VDisks per NVMe PDisk should be between 1 and 32.');
+        isValid = false;
+    }
     
     return isValid;
+}
+
+// Show a non-blocking warning message for an input (e.g. not recommended values)
+function showWarningMessage(inputId, message) {
+    const inputElement = document.getElementById(inputId);
+    // remove existing warning next to this input
+    const existing = inputElement.parentNode.querySelector('.warning-message');
+    if (existing) existing.remove();
+    const warn = document.createElement('div');
+    warn.className = 'warning-message';
+    warn.textContent = message;
+    inputElement.parentNode.appendChild(warn);
+}
+
+function clearWarningMessages() {
+    const warnings = document.querySelectorAll('.warning-message');
+    warnings.forEach(w => w.remove());
+}
+
+// Check for soft warnings according to business rules
+function checkWarnings() {
+    clearWarningMessages();
+    const nvme = parseInt(document.getElementById('nvme-devices-per-server').value) || 0;
+    const hdd = parseInt(document.getElementById('hdd-devices-per-server').value) || 0;
+    const vdisksHdd = parseInt(document.getElementById('vdisks-per-hdd-pdisk').value) || 0;
+    const vdisksNvme = parseInt(document.getElementById('vdisks-per-nvme-pdisk').value) || 0;
+
+    if (nvme > 16) {
+        showWarningMessage('nvme-devices-per-server', 'More than 16 NVMe devices per server is unusual; verify configuration.');
+    }
+    if (hdd > 16) {
+        showWarningMessage('hdd-devices-per-server', 'More than 16 HDD devices per server is unusual; verify configuration.');
+    }
+    if (vdisksHdd > 8) {
+        showWarningMessage('vdisks-per-hdd-pdisk', 'More than 8 vdisks per HDD PDisk is not recommended.');
+    }
+    if (vdisksNvme > 16) {
+        showWarningMessage('vdisks-per-nvme-pdisk', 'More than 16 vdisks per NVMe PDisk is not recommended.');
+    }
+}
+
+// Build a brief server configuration summary for story 3
+function buildServerConfigSummary() {
+    const cores = document.getElementById('cores-per-server').value || 'N/A';
+    const ram = document.getElementById('ram-per-server').value || 'N/A';
+    const nvmeCount = document.getElementById('nvme-devices-per-server').value || '0';
+    const nvmeSize = document.getElementById('nvme-device-size').value || '0';
+    const hddCount = document.getElementById('hdd-devices-per-server').value || '0';
+    const hddSize = document.getElementById('hdd-device-size').value || '0';
+
+    return `${cores} cores, ${ram} GB RAM, ${nvmeCount}x${nvmeSize}TB NVMe, ${hddCount}x${hddSize}TB HDD`;
 }
 
 // Show error message for an input
@@ -448,6 +522,20 @@ function displayStory1Results(results) {
     // Show the results section
     document.getElementById('story1-results').classList.remove('hidden');
     document.getElementById('story2-results').classList.add('hidden');
+
+    // Clear previous highlights
+    ['storage','cores','ram'].forEach(r => {
+        const el = document.getElementById(`${r}-servers-item`);
+        if (el) el.classList.remove('dominant');
+    });
+    const finalItem = document.getElementById('final-item');
+    if (finalItem) finalItem.classList.remove('final');
+
+    // Highlight dominant resource and final result
+    const dominant = results.dominantResource;
+    const dominantEl = document.getElementById(dominant + '-servers-item');
+    if (dominantEl) dominantEl.classList.add('dominant');
+    if (finalItem) finalItem.classList.add('final');
 }
 
 // Display Story 2 results
@@ -496,11 +584,14 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById(inputId).addEventListener('change', saveServerConfigToLocalStorage);
     });
 
-    // Live validation: update calculate button state on input changes
+    // Live behavior: update calculate button, check warnings and save on changes
     const liveInputs = serverConfigInputs.concat(['hdd-storage-groups','nvme-storage-groups','database-cores','database-ram','server-count']);
     liveInputs.forEach(inputId => {
         const el = document.getElementById(inputId);
-        if (el) el.addEventListener('input', updateCalculateButtonState);
+        if (el) {
+            el.addEventListener('input', updateCalculateButtonState);
+            el.addEventListener('input', checkWarnings);
+        }
     });
 
     // Toggle server config visibility
@@ -509,4 +600,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Ensure calculate button initial state
     updateCalculateButtonState();
+    checkWarnings();
+    // if server config is initially hidden show a summary
+    const serverSection = document.getElementById('server-config-section');
+    if (serverSection && serverSection.classList.contains('hidden')) {
+        const summaryEl = document.getElementById('server-config-summary');
+        if (summaryEl) {
+            summaryEl.textContent = buildServerConfigSummary();
+            summaryEl.classList.remove('hidden');
+        }
+    }
 });
