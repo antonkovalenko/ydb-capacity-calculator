@@ -148,6 +148,17 @@ function calculateServers() {
         databaseRam: parseFloat(document.getElementById('database-ram').value) || 0
     };
     
+    // Enforce defaults and clamp ranges (vdisks defaults: HDD=8, NVMe=16)
+    enforceAndNormalizeServerConfig(serverConfig);
+
+    // If database RAM not specified but cores requested, auto-fill RAM: 50 GB per 10 cores (5 GB/core)
+    if ((capacityRequirements.databaseRam || 0) <= 0 && (capacityRequirements.databaseCores || 0) > 0) {
+        capacityRequirements.databaseRam = Math.ceil(capacityRequirements.databaseCores * 5);
+        // update input to show auto-filled value
+        const ramEl = document.getElementById('database-ram');
+        if (ramEl) ramEl.value = capacityRequirements.databaseRam;
+    }
+
     // Validate inputs
     if (!validateInputs(serverConfig, capacityRequirements)) {
         return;
@@ -179,6 +190,9 @@ function calculateCapacity() {
     
     const serverCount = parseInt(document.getElementById('server-count').value) || 1;
     
+    // Enforce defaults and clamp ranges
+    enforceAndNormalizeServerConfig(serverConfig);
+
     // Validate inputs
     if (!validateServerConfig(serverConfig) || serverCount <= 0) {
         if (serverCount <= 0) {
@@ -257,6 +271,34 @@ function validateServerConfig(serverConfig) {
     }
     
     return isValid;
+}
+
+// Enforce defaults and clamp ranges for server configuration inputs
+function enforceAndNormalizeServerConfig(serverConfig) {
+    // defaults per business rules
+    if (!serverConfig.vdisksPerHddPdisk || isNaN(serverConfig.vdisksPerHddPdisk)) serverConfig.vdisksPerHddPdisk = 8;
+    if (!serverConfig.vdisksPerNvmePdisk || isNaN(serverConfig.vdisksPerNvmePdisk)) serverConfig.vdisksPerNvmePdisk = 16;
+
+    // clamp to allowed ranges
+    if (serverConfig.vdisksPerHddPdisk < 1) serverConfig.vdisksPerHddPdisk = 1;
+    if (serverConfig.vdisksPerHddPdisk > 16) {
+        serverConfig.vdisksPerHddPdisk = 16;
+        showWarningMessage('vdisks-per-hdd-pdisk', 'VDisks per HDD PDisk capped to 16 (max supported).');
+    }
+
+    if (serverConfig.vdisksPerNvmePdisk < 1) serverConfig.vdisksPerNvmePdisk = 1;
+    if (serverConfig.vdisksPerNvmePdisk > 32) {
+        serverConfig.vdisksPerNvmePdisk = 32;
+        showWarningMessage('vdisks-per-nvme-pdisk', 'VDisks per NVMe PDisk capped to 32 (max supported).');
+    }
+
+    // update DOM elements to reflect normalized values
+    const hEl = document.getElementById('vdisks-per-hdd-pdisk');
+    const nEl = document.getElementById('vdisks-per-nvme-pdisk');
+    if (hEl) hEl.value = serverConfig.vdisksPerHddPdisk;
+    if (nEl) nEl.value = serverConfig.vdisksPerNvmePdisk;
+
+    return serverConfig;
 }
 
 // Show a non-blocking warning message for an input (e.g. not recommended values)
