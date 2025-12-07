@@ -8,7 +8,7 @@
   );--_--background-color-disabled:var(
       --g-list-item-view-background-color,var(--g-color-base-fill)
   );--_--background-color-active:var(
-      --g-list-item-view-background-color,var(--g-color-base-generic-medium)
+      --g-list-item-view-background-color,var(--g-color-base-generic-medium)w
   );--_--background-color-selected:var(
       --g-list-item-view-background-color,var(--g-color-base-selection)
   );--_--background-color-selected-hover:var(

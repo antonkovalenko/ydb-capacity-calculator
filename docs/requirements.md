@@ -16,3 +16,5 @@ Specific terms used in stories below are:
 Since all the logic might be calculated in JavaScript on the client I need this project to be done as a single HTML page with logic in javascript. Look and feel of a modern standard UI library would suffice. 
 
 Use logo from URL https://storage.yandexcloud.net/ydb-site-assets/ydb_icon.svg in the title. Use main colours and fonts from ydb-styles.css file
+
+Never write Story 2 or Story 1 in the UI. Use story names only.

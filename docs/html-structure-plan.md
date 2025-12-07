@@ -437,8 +437,8 @@ document.addEventListener('DOMContentLoaded', function() {
 ### Complete HTML Structure
 The final HTML file will combine all these elements into a single, self-contained file with:
 1. Proper HTML5 structure
-2. Embedded CSS for styling
-3. Embedded JavaScript for functionality
+2. Separate CSS file for styling
+3. Separate JavaScript for functionality
 4. YDB branding with official logo
 5. Responsive design for all screen sizes
 6. Form validation and error handling

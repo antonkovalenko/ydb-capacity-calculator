@@ -15,6 +15,8 @@ function saveServerConfigToLocalStorage() {
     };
     
     localStorage.setItem('ydbServerConfig', JSON.stringify(serverConfig));
+    // Keep the brief summary in sync when config changes
+    updateServerConfigSummary();
 }
 
 // Load server configuration from local storage
@@ -352,6 +354,20 @@ function buildServerConfigSummary() {
     return `${cores} cores, ${ram} GB RAM, ${nvmeCount}x${nvmeSize}TB NVMe, ${hddCount}x${hddSize}TB HDD`;
 }
 
+// Update the server configuration summary element depending on visibility
+function updateServerConfigSummary() {
+    const section = document.getElementById('server-config-section');
+    const summaryEl = document.getElementById('server-config-summary');
+    if (!summaryEl) return;
+
+    if (section && section.classList.contains('hidden')) {
+        summaryEl.textContent = buildServerConfigSummary();
+        summaryEl.classList.remove('hidden');
+    } else {
+        summaryEl.classList.add('hidden');
+    }
+}
+
 // Show error message for an input
 function showErrorMessage(inputId, message) {
     const inputElement = document.getElementById(inputId);
@@ -633,6 +649,10 @@ document.addEventListener('DOMContentLoaded', function() {
         if (el) {
             el.addEventListener('input', updateCalculateButtonState);
             el.addEventListener('input', checkWarnings);
+            // Keep summary updated when server config inputs change
+            if (serverConfigInputs.indexOf(inputId) !== -1) {
+                el.addEventListener('input', updateServerConfigSummary);
+            }
         }
     });
 
@@ -651,5 +671,21 @@ document.addEventListener('DOMContentLoaded', function() {
             summaryEl.textContent = buildServerConfigSummary();
             summaryEl.classList.remove('hidden');
         }
+    }
+
+    // Make the summary clickable to reopen the server configuration
+    const summaryEl = document.getElementById('server-config-summary');
+    if (summaryEl) {
+        summaryEl.style.cursor = 'pointer';
+        summaryEl.title = 'Click to edit server configuration';
+        summaryEl.addEventListener('click', function() {
+            const section = document.getElementById('server-config-section');
+            if (section && section.classList.contains('hidden')) {
+                toggleServerConfig();
+                // focus first input for convenience
+                const firstInput = document.getElementById('cores-per-server');
+                if (firstInput) firstInput.focus();
+            }
+        });
     }
 });

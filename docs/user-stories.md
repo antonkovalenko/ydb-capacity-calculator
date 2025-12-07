@@ -27,3 +27,11 @@
 **As a** capacity planner  
 **I want to** specify server configuration and server count  
 **So that** I receive the amount of storage groups, RAM and cores provided by specified server configuration and server count
+
+## Story 3: When server configuration is hidden I want to see the brief configuration summary
+
+**As a** capacity planner  
+**I want to** see the brief server configuration summary when server configuration form is hidden  
+**So that** I always know what server configuration is used for calculation
+
+Brief configuration summary example: "32 cores, 1024 GB of RAM, 2x1TB NVMe, 4x4TB HDD"

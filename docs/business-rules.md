@@ -25,12 +25,19 @@ Only one type of servers is used in calculation. Configuration is defined by:
 
 - number of CPU cores per server
 - number of RAM per server in GB
-- number of NVMe storage devices attached to every server
+- number of NVMe storage devices attached to every server - minimum is 0 when number greater than 16 is entered warn user that it is weird
 - size of a single NVMe devices on TB
-- number of HDD storage devices attached to every server
+- number of HDD storage devices attached to every server - minimum is 0 when number greater than 16 is entered warn user that it is weird
 - size of a single HDD devices on TB
-- number of vdisks that could be launched over HDD PDisks
-- number of vdisks that could be launched over NVMe PDisks
+- number of vdisks that could be launched over HDD PDisks – cannot be less than 1 and greater than 16, default is 8. When entered more than 8 warn user that it is not recommended
+- number of vdisks that could be launched over NVMe PDisks  – cannot be less than 1 and greater than 32, default is 16. When entered more than 16 warn user that it is not recommended
+
+### How to display warning messages
+
+When user enters more VDisks per device when recommeneed show warning message below the input field in color associated with warning.
+Do not block calculation when warnings are present.
+
+Besides, open a popover dialog with the warning message and an image located in images/cthulhu.png with 640px width
 
 ## Server Calculation Algorithm
 
@@ -44,6 +51,8 @@ Calculation process receives capacity requirements:
 - amount of RAM in GB for database nodes
 - number of NVMe storage groups
 - number of HDD storage groups
+
+Fill RAM requested RAM size when cores are entered using proportion of 50 GB per 10 cores if RAM is not specified. This autofilling must be done when RAM is empty or zero and cores are changed.
 
 ### How to calculate servers by storage groups
 
@@ -59,7 +68,7 @@ Calculation process receives capacity requirements:
 1. Calculate how many cores for databases nodes are available from every server: substract cores, reserved for OS and cores for storage from server cores count.
 2. Divide cores ordered by cores for databases node from one server - get number of servers
 3. Calculate how many RAM for databases nodes is available from every server: substract RAM, reserved for OS and RAM for storage from server total RAM.
-2. Divide RAM ordered by RAM for databases node from one server - get number of servers by RAM
+4. Divide RAM ordered by RAM for databases node from one server - get number of servers by RAM
 
 ### How to present final calculation
 

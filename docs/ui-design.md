@@ -17,11 +17,18 @@ When I press "Calculate" button I want to see results below the button in a clea
 
 ### 2. Server Configuration Form
 
-- Two-column layout for better organization
+Split into two sections:
+Compute: Number of cores and RAM size per server. Two column layout for better organization.
+Storage: Number of NVMe and HDD devices, size of each device, number of VDisks per device Three column layout for better organization.
+
 - Input fields with appropriate labels and placeholders
 - Clear grouping of related inputs (CPU, RAM, Storage)
 
 ### 3. Capacity Requirements Form
+
+Split into two sections:
+Compute: Number of cores and RAM size. Two column layout for better organization.
+Storage: Number of NVMe and HDD groups Two column layout.
 
 - Similar two-column layout
 - Inputs for storage groups and database resources
@@ -38,6 +45,8 @@ When I press "Calculate" button I want to see results below the button in a clea
 - Clear display of server counts by resource type
 - Highlighting of dominant resource
 - Final server count prominently displayed
+
+I want results to be easy to read and understand. When story 2 is selected I want to see capacity provided in terms of storage groups, cores and RAM. When story 1 is selected I want to see server counts by resource type and final server count.
 
 ## Color Scheme and Styling
 
