@@ -1,5 +1,28 @@
 // Current active story (1 or 2)
 let currentStory = 1;
+// Flag to avoid showing warnings triggered by programmatic input population
+let userHasInteracted = false;
+
+// Constants for configuration and business rules
+const DEFAULT_VDISKS_HDD = 8;
+const DEFAULT_VDISKS_NVME = 16;
+const MIN_VDISKS_PER_PDISK = 1;
+const MAX_VDISKS_HDD = 16;
+const MAX_VDISKS_NVME = 32;
+const MAX_DEVICES_PER_SERVER = 16;
+const RECOMMENDED_MAX_VDISKS_HDD = 8;
+const RECOMMENDED_MAX_VDISKS_NVME = 16;
+const STORAGE_GROUP_SIZE = 9;
+const MIN_RESERVE_VDISKS = 18;
+const RESERVE_PERCENTAGE = 0.01;
+const SYSTEM_CORES_RESERVE = 2;
+const NVME_CORES_RESERVE = 6;
+const HDD_CORES_RESERVE = 0.5;
+const SYSTEM_RAM_RESERVE = 4;
+const NVME_RAM_RESERVE = 6;
+const HDD_RAM_RESERVE = 2;
+const MIN_SERVERS = 12;
+const RAM_PER_CORE_RATIO = 5;
 
 // Save server configuration to local storage
 function saveServerConfigToLocalStorage() {
@@ -33,8 +56,8 @@ function loadServerConfigFromLocalStorage() {
         document.getElementById('hdd-devices-per-server').value = serverConfig.hddDevicesPerServer || '0';
         document.getElementById('hdd-device-size').value = serverConfig.hddDeviceSize || '0';
         // sensible defaults per business rules
-        document.getElementById('vdisks-per-hdd-pdisk').value = serverConfig.vdisksPerHddPdisk || '8';
-        document.getElementById('vdisks-per-nvme-pdisk').value = serverConfig.vdisksPerNvmePdisk || '16';
+        document.getElementById('vdisks-per-hdd-pdisk').value = serverConfig.vdisksPerHddPdisk || DEFAULT_VDISKS_HDD.toString();
+        document.getElementById('vdisks-per-nvme-pdisk').value = serverConfig.vdisksPerNvmePdisk || DEFAULT_VDISKS_NVME.toString();
     }
 }
 
@@ -155,7 +178,7 @@ function calculateServers() {
 
     // If database RAM not specified but cores requested, auto-fill RAM: 50 GB per 10 cores (5 GB/core)
     if ((capacityRequirements.databaseRam || 0) <= 0 && (capacityRequirements.databaseCores || 0) > 0) {
-        capacityRequirements.databaseRam = Math.ceil(capacityRequirements.databaseCores * 5);
+        capacityRequirements.databaseRam = Math.ceil(capacityRequirements.databaseCores * RAM_PER_CORE_RATIO);
         // update input to show auto-filled value
         const ramEl = document.getElementById('database-ram');
         if (ramEl) ramEl.value = capacityRequirements.databaseRam;
@@ -262,13 +285,13 @@ function validateServerConfig(serverConfig) {
     }
 
     // Validate vdisks per pdisk ranges
-    if (serverConfig.vdisksPerHddPdisk < 1 || serverConfig.vdisksPerHddPdisk > 16) {
-        showErrorMessage('vdisks-per-hdd-pdisk', 'VDisks per HDD PDisk should be between 1 and 16.');
+    if (serverConfig.vdisksPerHddPdisk < MIN_VDISKS_PER_PDISK || serverConfig.vdisksPerHddPdisk > MAX_VDISKS_HDD) {
+        showErrorMessage('vdisks-per-hdd-pdisk', `VDisks per HDD PDisk should be between ${MIN_VDISKS_PER_PDISK} and ${MAX_VDISKS_HDD}.`);
         isValid = false;
     }
 
-    if (serverConfig.vdisksPerNvmePdisk < 1 || serverConfig.vdisksPerNvmePdisk > 32) {
-        showErrorMessage('vdisks-per-nvme-pdisk', 'VDisks per NVMe PDisk should be between 1 and 32.');
+    if (serverConfig.vdisksPerNvmePdisk < MIN_VDISKS_PER_PDISK || serverConfig.vdisksPerNvmePdisk > MAX_VDISKS_NVME) {
+        showErrorMessage('vdisks-per-nvme-pdisk', `VDisks per NVMe PDisk should be between ${MIN_VDISKS_PER_PDISK} and ${MAX_VDISKS_NVME}.`);
         isValid = false;
     }
     
@@ -278,20 +301,20 @@ function validateServerConfig(serverConfig) {
 // Enforce defaults and clamp ranges for server configuration inputs
 function enforceAndNormalizeServerConfig(serverConfig) {
     // defaults per business rules
-    if (!serverConfig.vdisksPerHddPdisk || isNaN(serverConfig.vdisksPerHddPdisk)) serverConfig.vdisksPerHddPdisk = 8;
-    if (!serverConfig.vdisksPerNvmePdisk || isNaN(serverConfig.vdisksPerNvmePdisk)) serverConfig.vdisksPerNvmePdisk = 16;
+    if (!serverConfig.vdisksPerHddPdisk || isNaN(serverConfig.vdisksPerHddPdisk)) serverConfig.vdisksPerHddPdisk = DEFAULT_VDISKS_HDD;
+    if (!serverConfig.vdisksPerNvmePdisk || isNaN(serverConfig.vdisksPerNvmePdisk)) serverConfig.vdisksPerNvmePdisk = DEFAULT_VDISKS_NVME;
 
     // clamp to allowed ranges
-    if (serverConfig.vdisksPerHddPdisk < 1) serverConfig.vdisksPerHddPdisk = 1;
-    if (serverConfig.vdisksPerHddPdisk > 16) {
-        serverConfig.vdisksPerHddPdisk = 16;
-        showWarningMessage('vdisks-per-hdd-pdisk', 'VDisks per HDD PDisk capped to 16 (max supported).');
+    if (serverConfig.vdisksPerHddPdisk < MIN_VDISKS_PER_PDISK) serverConfig.vdisksPerHddPdisk = MIN_VDISKS_PER_PDISK;
+    if (serverConfig.vdisksPerHddPdisk > MAX_VDISKS_HDD) {
+        serverConfig.vdisksPerHddPdisk = MAX_VDISKS_HDD;
+        showWarningMessage('vdisks-per-hdd-pdisk', `VDisks per HDD PDisk capped to ${MAX_VDISKS_HDD} (max supported).`);
     }
 
-    if (serverConfig.vdisksPerNvmePdisk < 1) serverConfig.vdisksPerNvmePdisk = 1;
-    if (serverConfig.vdisksPerNvmePdisk > 32) {
-        serverConfig.vdisksPerNvmePdisk = 32;
-        showWarningMessage('vdisks-per-nvme-pdisk', 'VDisks per NVMe PDisk capped to 32 (max supported).');
+    if (serverConfig.vdisksPerNvmePdisk < MIN_VDISKS_PER_PDISK) serverConfig.vdisksPerNvmePdisk = MIN_VDISKS_PER_PDISK;
+    if (serverConfig.vdisksPerNvmePdisk > MAX_VDISKS_NVME) {
+        serverConfig.vdisksPerNvmePdisk = MAX_VDISKS_NVME;
+        showWarningMessage('vdisks-per-nvme-pdisk', `VDisks per NVMe PDisk capped to ${MAX_VDISKS_NVME} (max supported).`);
     }
 
     // update DOM elements to reflect normalized values
@@ -304,15 +327,20 @@ function enforceAndNormalizeServerConfig(serverConfig) {
 }
 
 // Show a non-blocking warning message for an input (e.g. not recommended values)
-function showWarningMessage(inputId, message) {
-    const inputElement = document.getElementById(inputId);
-    // remove existing warning next to this input
-    const existing = inputElement.parentNode.querySelector('.warning-message');
+function showWarningMessage(elementId, message) {
+    const element = document.getElementById(elementId);
+    if (!element) return;
+    
+    // remove existing warning next to this element
+    let container = element.parentNode;
+    // For result items, we need to add the warning to the same container
+    const existing = container.querySelector('.warning-message');
     if (existing) existing.remove();
+    
     const warn = document.createElement('div');
     warn.className = 'warning-message';
     warn.textContent = message;
-    inputElement.parentNode.appendChild(warn);
+    container.appendChild(warn);
 }
 
 function clearWarningMessages() {
@@ -322,24 +350,68 @@ function clearWarningMessages() {
 
 // Check for soft warnings according to business rules
 function checkWarnings() {
+    // If the user hasn't interacted yet (page load / programmatic population), don't show warnings
+    if (!userHasInteracted) {
+        // clearWarningMessages();
+        hideWarningPopover();
+        return;
+    }
     clearWarningMessages();
     const nvme = parseInt(document.getElementById('nvme-devices-per-server').value) || 0;
     const hdd = parseInt(document.getElementById('hdd-devices-per-server').value) || 0;
     const vdisksHdd = parseInt(document.getElementById('vdisks-per-hdd-pdisk').value) || 0;
     const vdisksNvme = parseInt(document.getElementById('vdisks-per-nvme-pdisk').value) || 0;
+    const popMessages = [];
 
-    if (nvme > 16) {
-        showWarningMessage('nvme-devices-per-server', 'More than 16 NVMe devices per server is unusual; verify configuration.');
+    if (nvme > MAX_DEVICES_PER_SERVER) {
+        const msg = `More than ${MAX_DEVICES_PER_SERVER} NVMe devices per server is unusual; verify configuration.`;
+        showWarningMessage('nvme-devices-per-server', msg);
+        popMessages.push(msg);
     }
-    if (hdd > 16) {
-        showWarningMessage('hdd-devices-per-server', 'More than 16 HDD devices per server is unusual; verify configuration.');
+    if (hdd > MAX_DEVICES_PER_SERVER) {
+        const msg = `More than ${MAX_DEVICES_PER_SERVER} HDD devices per server is unusual; verify configuration.`;
+        showWarningMessage('hdd-devices-per-server', msg);
+        popMessages.push(msg);
     }
-    if (vdisksHdd > 8) {
-        showWarningMessage('vdisks-per-hdd-pdisk', 'More than 8 vdisks per HDD PDisk is not recommended.');
+    if (vdisksHdd > RECOMMENDED_MAX_VDISKS_HDD) {
+        const msg = `More than ${RECOMMENDED_MAX_VDISKS_HDD} vdisks per HDD PDisk is not recommended.`;
+        showWarningMessage('vdisks-per-hdd-pdisk', msg);
+        popMessages.push(msg);
     }
-    if (vdisksNvme > 16) {
-        showWarningMessage('vdisks-per-nvme-pdisk', 'More than 16 vdisks per NVMe PDisk is not recommended.');
+    if (vdisksNvme > RECOMMENDED_MAX_VDISKS_NVME) {
+        const msg = `More than ${RECOMMENDED_MAX_VDISKS_NVME} vdisks per NVMe PDisk is not recommended.`;
+        showWarningMessage('vdisks-per-nvme-pdisk', msg);
+        popMessages.push(msg);
     }
+
+    // Show popover dialog when warnings exist; do not block calculation
+    if (popMessages.length > 0) {
+        showWarningPopover(popMessages);
+    } else {
+        hideWarningPopover();
+    }
+}
+
+// Show the large warning popover with messages and image
+function showWarningPopover(messages) {
+    const overlay = document.getElementById('warning-popover-overlay');
+    const container = document.getElementById('warning-popover-messages');
+    if (!overlay || !container) return;
+    container.innerHTML = '';
+    messages.forEach(m => {
+        const p = document.createElement('div');
+        p.textContent = m;
+        container.appendChild(p);
+    });
+    overlay.classList.remove('hidden');
+}
+
+function hideWarningPopover() {
+    const overlay = document.getElementById('warning-popover-overlay');
+    if (!overlay) {
+        return;
+    }
+    overlay.classList.add('hidden');
 }
 
 // Build a brief server configuration summary for story 3
@@ -402,24 +474,29 @@ function performCalculations(serverConfig, capacityRequirements) {
     };
     
     const dominantResource = getDominantResource(serversByResource);
-    const finalServers = Math.max(12, serversByResource[dominantResource]);
+    const calculatedServers = serversByResource[dominantResource];
+    const finalServers = Math.max(MIN_SERVERS, calculatedServers);
+    
+    // Check if minimum server count was applied
+    const isMinimumApplied = finalServers > calculatedServers;
     
     return {
         serversByResource,
         dominantResource,
-        finalServers
+        finalServers,
+        isMinimumApplied
     };
 }
 
 // Storage group calculation
 function calculateStorageServers(serverConfig, capacityRequirements) {
     // Each storage group consists of 9 VDisks
-    const hddVdisksRequired = capacityRequirements.hddStorageGroups * 9;
-    const nvmeVdisksRequired = capacityRequirements.nvmeStorageGroups * 9;
+    const hddVdisksRequired = capacityRequirements.hddStorageGroups * STORAGE_GROUP_SIZE;
+    const nvmeVdisksRequired = capacityRequirements.nvmeStorageGroups * STORAGE_GROUP_SIZE;
     
     // Add reserve: 1% or minimum 18 VDisks
-    const hddReserve = Math.max(18, Math.ceil(hddVdisksRequired * 0.01));
-    const nvmeReserve = Math.max(18, Math.ceil(nvmeVdisksRequired * 0.01));
+    const hddReserve = Math.max(MIN_RESERVE_VDISKS, Math.ceil(hddVdisksRequired * RESERVE_PERCENTAGE));
+    const nvmeReserve = Math.max(MIN_RESERVE_VDISKS, Math.ceil(nvmeVdisksRequired * RESERVE_PERCENTAGE));
     
     const totalHddVdisks = hddVdisksRequired + hddReserve;
     const totalNvmeVdisks = nvmeVdisksRequired + nvmeReserve;
@@ -446,10 +523,10 @@ function calculateStorageServers(serverConfig, capacityRequirements) {
 // CPU calculation
 function calculateCoresServers(serverConfig, capacityRequirements) {
     // Reserve 2-4 cores per server for OS (using 2 as minimum)
-    const systemCores = 2;
+    const systemCores = SYSTEM_CORES_RESERVE;
     
     // Reserve 6 cores per NVMe drive and 0.5 per HDD drive
-    const storageCores = (serverConfig.nvmeDevicesPerServer * 6) + (serverConfig.hddDevicesPerServer * 0.5);
+    const storageCores = (serverConfig.nvmeDevicesPerServer * NVME_CORES_RESERVE) + (serverConfig.hddDevicesPerServer * HDD_CORES_RESERVE);
     
     // Available cores for database nodes
     const availableCoresPerServer = serverConfig.coresPerServer - systemCores - storageCores;
@@ -470,10 +547,10 @@ function calculateCoresServers(serverConfig, capacityRequirements) {
 // RAM calculation
 function calculateRamServers(serverConfig, capacityRequirements) {
     // Reserve 4GB RAM per server for system
-    const systemRam = 4;
+    const systemRam = SYSTEM_RAM_RESERVE;
     
     // Reserve 6GB per NVMe device and 2GB per HDD device
-    const storageRam = (serverConfig.nvmeDevicesPerServer * 6) + (serverConfig.hddDevicesPerServer * 2);
+    const storageRam = (serverConfig.nvmeDevicesPerServer * NVME_RAM_RESERVE) + (serverConfig.hddDevicesPerServer * HDD_RAM_RESERVE);
     
     // Available RAM for database nodes
     const availableRamPerServer = serverConfig.ramPerServer - systemRam - storageRam;
@@ -514,31 +591,31 @@ function calculateProvidedCapacity(serverConfig, serverCount) {
     
     // Each storage group consists of 9 VDisks
     // Subtract reserve: 1% or minimum 18 VDisks
-    const hddReserve = Math.max(18, Math.ceil(totalHddVdisks * 0.01));
-    const nvmeReserve = Math.max(18, Math.ceil(totalNvmeVdisks * 0.01));
+    const hddReserve = Math.max(MIN_RESERVE_VDISKS, Math.ceil(totalHddVdisks * RESERVE_PERCENTAGE));
+    const nvmeReserve = Math.max(MIN_RESERVE_VDISKS, Math.ceil(totalNvmeVdisks * RESERVE_PERCENTAGE));
     
     const availableHddVdisks = Math.max(0, totalHddVdisks - hddReserve);
     const availableNvmeVdisks = Math.max(0, totalNvmeVdisks - nvmeReserve);
     
-    const hddStorageGroups = Math.floor(availableHddVdisks / 9);
-    const nvmeStorageGroups = Math.floor(availableNvmeVdisks / 9);
+    const hddStorageGroups = Math.floor(availableHddVdisks / STORAGE_GROUP_SIZE);
+    const nvmeStorageGroups = Math.floor(availableNvmeVdisks / STORAGE_GROUP_SIZE);
     
     // Calculate database resources
     // Reserve 2-4 cores per server for OS (using 2 as minimum)
-    const systemCores = 2;
+    const systemCores = SYSTEM_CORES_RESERVE;
     
     // Reserve 6 cores per NVMe drive and 0.5 per HDD drive
-    const storageCores = (serverConfig.nvmeDevicesPerServer * 6) + (serverConfig.hddDevicesPerServer * 0.5);
+    const storageCores = (serverConfig.nvmeDevicesPerServer * NVME_CORES_RESERVE) + (serverConfig.hddDevicesPerServer * HDD_CORES_RESERVE);
     
     // Available cores for database nodes
     const availableCoresPerServer = Math.max(0, serverConfig.coresPerServer - systemCores - storageCores);
     const databaseCores = availableCoresPerServer * serverCount;
     
     // Reserve 4GB RAM per server for system
-    const systemRam = 4;
+    const systemRam = SYSTEM_RAM_RESERVE;
     
     // Reserve 6GB per NVMe device and 2GB per HDD device
-    const storageRam = (serverConfig.nvmeDevicesPerServer * 6) + (serverConfig.hddDevicesPerServer * 2);
+    const storageRam = (serverConfig.nvmeDevicesPerServer * NVME_RAM_RESERVE) + (serverConfig.hddDevicesPerServer * HDD_RAM_RESERVE);
     
     // Available RAM for database nodes
     const availableRamPerServer = Math.max(0, serverConfig.ramPerServer - systemRam - storageRam);
@@ -577,6 +654,12 @@ function displayStory1Results(results) {
     // Display final server count
     document.getElementById('final-servers-result').textContent = results.finalServers;
     
+    // Show warning if minimum server count was applied
+    if (results.isMinimumApplied) {
+        const msg = 'Note: 12 is the minimum recommended cluster size.';
+        showWarningMessage('final-servers-result', msg);
+    }
+    
     // Show the results section
     document.getElementById('story1-results').classList.remove('hidden');
     document.getElementById('story2-results').classList.add('hidden');
@@ -611,6 +694,9 @@ function displayStory2Results(results) {
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
+    // Define event handler variables to ensure we can properly remove them
+    let popCloseHandler, overlayClickHandler, popInnerClickHandler, documentClickHandler;
+    
     // Load saved server configuration
     loadServerConfigFromLocalStorage();
     
@@ -644,9 +730,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Live behavior: update calculate button, check warnings and save on changes
     const liveInputs = serverConfigInputs.concat(['hdd-storage-groups','nvme-storage-groups','database-cores','database-ram','server-count']);
+    // Mark the first user interaction so programmatic loads won't trigger warnings
+    function markUserInteracted() {
+        userHasInteracted = true;
+    }
     liveInputs.forEach(inputId => {
         const el = document.getElementById(inputId);
         if (el) {
+            // attach a one-time marker that flags the user has interacted before running warnings
+            el.addEventListener('input', function onFirst() { markUserInteracted(); el.removeEventListener('input', onFirst); }, { once: true });
             el.addEventListener('input', updateCalculateButtonState);
             el.addEventListener('input', checkWarnings);
             // Keep summary updated when server config inputs change
@@ -662,7 +754,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Ensure calculate button initial state
     updateCalculateButtonState();
-    checkWarnings();
+    // Do NOT run warnings on initial load; warnings should appear only after user interaction
+    // Hide warning popover on initial load
+    hideWarningPopover();
     // if server config is initially hidden show a summary
     const serverSection = document.getElementById('server-config-section');
     if (serverSection && serverSection.classList.contains('hidden')) {
@@ -688,4 +782,48 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
+    // Wire up warning popover close and overlay behavior (in-DOM handlers)
+    const popClose = document.getElementById('warning-popover-close');
+    const overlayEl = document.getElementById('warning-popover-overlay');
+    const popInner = document.getElementById('warning-popover');
+    
+    // Remove any existing event listeners to prevent duplicates
+    if (popClose) {
+        popClose.removeEventListener('click', popCloseHandler);
+        // Define the handler function in a way that we can reference it for removal
+        popCloseHandler = function(e) {
+            hideWarningPopover();
+        };
+        popClose.addEventListener('click', popCloseHandler);
+    }
+    
+    if (overlayEl) {
+        overlayEl.removeEventListener('click', overlayClickHandler);
+        // Define the handler function
+        overlayClickHandler = function(e) {
+            // close when clicking outside the popover content
+            if (e.target === overlayEl) hideWarningPopover();
+        };
+        overlayEl.addEventListener('click', overlayClickHandler);
+    }
+    
+    if (popInner) {
+        popInner.removeEventListener('click', popInnerClickHandler);
+        // Define the handler function
+        popInnerClickHandler = function(e) {
+            e.stopPropagation();
+        };
+        popInner.addEventListener('click', popInnerClickHandler);
+    }
+
+    // Fallback: ensure clicks on close or overlay are handled even if listeners weren't attached
+    document.removeEventListener('click', documentClickHandler);
+    documentClickHandler = function(e) {
+        if (!e.target) return;
+        if (e.target.id === 'warning-popover-close') {
+            hideWarningPopover();
+        }
+    };
+    document.addEventListener('click', documentClickHandler);
 });

@@ -90,12 +90,12 @@
                     <h3>Storage Requirements</h3>
                     <div class="form-grid">
                         <div class="form-group">
-                            <label for="hdd-storage-groups">HDD Storage Groups:</label>
-                            <input type="number" id="hdd-storage-groups" min="0" step="1" value="0" placeholder="0">
-                        </div>
-                        <div class="form-group">
                             <label for="nvme-storage-groups">NVMe Storage Groups:</label>
                             <input type="number" id="nvme-storage-groups" min="0" step="1" value="0" placeholder="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="hdd-storage-groups">HDD Storage Groups:</label>
+                            <input type="number" id="hdd-storage-groups" min="0" step="1" value="0" placeholder="0">
                         </div>
                     </div>
                 </div>
@@ -161,30 +161,30 @@
         <!-- Provided Capacity Results -->
         <section id="story2-results" class="hidden" aria-live="polite">
             <h2>Calculation Results — Provided Capacity</h2>
-            <div class="results-grid">
-                <div class="result-item">
-                    <span class="result-label">Storage Groups:</span>
-                    <span class="result-value"></span>
+            <div class="results-section">
+                <h3>Storage Capacity:</h3>
+                <div class="results-grid">
+                    <div class="result-item">
+                        <span class="result-label">NVMe Storage Groups:</span>
+                        <span class="result-value" id="nvme-storage-groups-result"></span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">HDD Storage Groups:</span>
+                        <span class="result-value" id="hdd-storage-groups-result"></span>s
+                    </div>
                 </div>
-                <div class="result-item">
-                    <span class="result-label">- HDD:</span>
-                    <span class="result-value" id="hdd-storage-groups-result"></span>
-                </div>
-                <div class="result-item">
-                    <span class="result-label">- NVMe:</span>
-                    <span class="result-value" id="nvme-storage-groups-result"></span>
-                </div>
-                <div class="result-item">
-                    <span class="result-label">Database Resources:</span>
-                    <span class="result-value"></span>
-                </div>
-                <div class="result-item">
-                    <span class="result-label">- Cores:</span>
-                    <span class="result-value" id="database-cores-result"></span>
-                </div>
-                <div class="result-item">
-                    <span class="result-label">- RAM (GB):</span>
-                    <span class="result-value" id="database-ram-result"></span>
+            </div>
+            <div class="results-section">
+                <h3>Database Capacity:</h3>
+                <div class="results-grid">
+                    <div class="result-item">
+                        <span class="result-label">Database Cores:</span>
+                        <span class="result-value" id="database-cores-result"></span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Database RAM (GB):</span>
+                        <span class="result-value" id="database-ram-result"></span>
+                    </div>
                 </div>
             </div>
         </section>
@@ -193,6 +193,18 @@
     <footer>
         <p>YDB Capacity Calculator &copy; 2025</p>
     </footer>
+
+    <!-- Warning popover (shown when user enters not-recommended values) -->
+    <div id="warning-popover-overlay" class="hidden" role="dialog" aria-modal="true" aria-labelledby="warning-popover-title">
+        <div id="warning-popover">
+            <button id="warning-popover-close" class="toggle-button" aria-label="Close warning">Close</button>
+            <h3 id="warning-popover-title">Configuration warning</h3>
+            <div id="warning-popover-messages"></div>
+            <div style="text-align:center; margin-top:12px;">
+                <img id="warning-popover-image" src="images/cthulhu.png" alt="Warning illustration" style="max-width:100%; width:640px; height:auto;">
+            </div>
+        </div>
+    </div>
 
     <script src="js/core.js"></script>
     <script src="js/calculator.js"></script>

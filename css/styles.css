@@ -133,6 +133,49 @@ form {
     box-shadow: 0 0 0 3px rgba(220,53,69,0.08);
 }
 
+/* Warning popover styles */
+#warning-popover-overlay {
+    position: fixed;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+#warning-popover {
+    background: var(--ydb-white);
+    padding: 18px;
+    border-radius: 8px;
+    max-width: 720px;
+    width: 94%;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+}
+
+#warning-popover h3 {
+    margin-top: 0;
+    color: var(--ydb-dark-blue);
+}
+
+#warning-popover-messages {
+    color: var(--ydb-warning);
+    font-weight: 600;
+}
+
+#warning-popover-close {
+    float: right;
+    margin-top: -8px;
+    margin-right: -8px;
+    background: transparent;
+    border: none;
+    color: var(--ydb-dark-gray);
+    cursor: pointer;
+}
+
 /* Two-column form grid */
 .form-grid {
     display: grid;
@@ -248,7 +291,7 @@ form {
 
 /* Hidden class for toggling sections */
 .hidden {
-    display: none;
+    display: none !important;
 }
 
 /* Result emphasis */

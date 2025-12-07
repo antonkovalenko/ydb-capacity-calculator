@@ -20,13 +20,26 @@
 
 - Server: 32 cores, 1024 GB of RAM, 2x1TB NVMe, 4x4TB HDD
 - Requirements: 10 HDD storage groups, 5 NVMe storage groups, database nodes: 100 cores, 5000 GB of RAM
-- Output: "You need X servers"
+- Output: "You need X servers". Note that when server count is displayed based on on minimum server count a warning must be displayed that 12 is the minimum recommended cluster size.
 
 ## Story 2: Calculate the amount of groups, RAM and cores provided by specified server configuration and server count
 
 **As a** capacity planner  
 **I want to** specify server configuration and server count  
 **So that** I receive the amount of storage groups, RAM and cores provided by specified server configuration and server count
+
+### Example Output
+
+I want the results for databases recources to be easily distinguishable from storage resources. Example
+
+```
+### Storage Capacity:
+- HDD Storage Groups: X
+- NVMe Storage Groups: Y
+### Database Capacity:
+- Database Cores: Z
+- Database RAM: W GB
+```
 
 ## Story 3: When server configuration is hidden I want to see the brief configuration summary
 
