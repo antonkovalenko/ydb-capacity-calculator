@@ -125,12 +125,12 @@ function updateCalculateButtonState() {
 
 // Toggle visibility of server configuration section
 function toggleServerConfig() {
-    const section = document.getElementById('server-config-section');
+    const content = document.getElementById('server-config-content');
     const btn = document.getElementById('toggle-server-config');
-    if (!section || !btn) return;
+    if (!content || !btn) return;
 
-    const hidden = section.classList.toggle('hidden');
-    btn.textContent = hidden ? 'Show Server Configuration' : 'Hide Server Configuration';
+    const hidden = content.classList.toggle('hidden');
+    btn.textContent = hidden ? 'Show' : 'Hide';
 
     const summaryEl = document.getElementById('server-config-summary');
     if (hidden) {
@@ -824,8 +824,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Hide warning popover on initial load
     hideWarningPopover();
     // if server config is initially hidden show a summary
-    const serverSection = document.getElementById('server-config-section');
-    if (serverSection && serverSection.classList.contains('hidden')) {
+    const serverContent = document.getElementById('server-config-content');
+    if (serverContent && serverContent.classList.contains('hidden')) {
         const summaryEl = document.getElementById('server-config-summary');
         if (summaryEl) {
             summaryEl.textContent = buildServerConfigSummary();
@@ -839,8 +839,8 @@ document.addEventListener('DOMContentLoaded', function() {
         summaryEl.style.cursor = 'pointer';
         summaryEl.title = 'Click to edit server configuration';
         summaryEl.addEventListener('click', function() {
-            const section = document.getElementById('server-config-section');
-            if (section && section.classList.contains('hidden')) {
+            const content = document.getElementById('server-config-content');
+            if (content && content.classList.contains('hidden')) {
                 toggleServerConfig();
                 // focus first input for convenience
                 const firstInput = document.getElementById('cores-per-server');

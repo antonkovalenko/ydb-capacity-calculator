@@ -17,6 +17,8 @@ When I press "Calculate" button I want to see results below the button in a clea
 
 ### 2. Server Configuration Form
 
+On the same horizontal level with server configration section title I want to see hide button in the right corner. When server configuration is hidden I want to see the brief configuration summary. When server configuration is hidden I want to see a button labled "show" instead of "hide". 
+
 Split into two sections:
 Compute: Number of cores and RAM size per server. Two column layout for better organization.
 Storage: Number of NVMe and HDD devices, size of each device, number of VDisks per device Three column layout for better organization.

@@ -24,17 +24,16 @@
             <button id="story2-toggle" class="toggle-button" role="tab">Provided Capacity</button>
         </div>
 
-        <!-- Optional: hide/show server configuration -->
-        <div class="server-config-toggle" style="text-align:center; margin-bottom:12px;">
-            <button id="toggle-server-config" class="toggle-button">Hide Server Configuration</button>
-        </div>
-
         <form id="calculator-form">
             <!-- Server Configuration Section -->
-            <section class="form-section" id="server-config-section">
-                <h2>Server Configuration</h2>
+            <section class="form-section">
+                <div class="section-header">
+                    <h2>Server Configuration</h2>
+                    <button type="button" id="toggle-server-config" class="toggle-button">Hide</button>
+                </div>
 
-                <div class="subsection">
+                <div id="server-config-content">
+                    <div class="subsection">
                     <h3>Compute</h3>
                     <div class="form-grid">
                         <div class="form-group">
@@ -78,9 +77,10 @@
                         </div>
                     </div>
                 </div>
+                </div>
 
+                <div id="server-config-summary" class="server-summary hidden" aria-live="polite"></div>
             </section>
-            <div id="server-config-summary" class="server-summary hidden" aria-live="polite"></div>
 
             <!-- Story 1: Capacity Requirements Section -->
             <section class="form-section" id="story1-section">

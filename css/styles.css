@@ -196,6 +196,28 @@ form {
     margin-bottom: 20px;
 }
 
+/* Section header with button on the same line */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid var(--ydb-border);
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.section-header h2 {
+    border-bottom: none;
+    padding-bottom: 0;
+    margin-bottom: 0;
+}
+
+.section-header .toggle-button {
+    padding: 8px 16px;
+    font-size: 14px;
+    min-width: auto;
+}
+
 .form-group {
     margin-bottom: 15px;
 }
