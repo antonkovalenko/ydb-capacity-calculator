@@ -1,1 +1,18 @@
 .DS_Store
+deply/settings.txt
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+Thumbs.db
+*.log
+npm-debug.log*
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Temporary files
+*.tmp
+*.temp
