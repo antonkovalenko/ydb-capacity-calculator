@@ -112,7 +112,11 @@ function updateCalculateButtonState() {
     if (currentStory === 1) {
         const hddGroups = parseInt(document.getElementById('hdd-storage-groups').value) || 0;
         const nvmeGroups = parseInt(document.getElementById('nvme-storage-groups').value) || 0;
-        const enable = cores > 0 && ram > 0 && (hddGroups > 0 || nvmeGroups > 0);
+        const dbCores = parseFloat(document.getElementById('database-cores').value) || 0;
+        const dbRam = parseFloat(document.getElementById('database-ram').value) || 0;
+        // Enable if server config is valid AND at least one requirement is specified
+        const hasRequirements = (hddGroups > 0 || nvmeGroups > 0 || dbCores > 0 || dbRam > 0);
+        const enable = cores > 0 && ram > 0 && hasRequirements;
         btn.disabled = !enable;
         btn.setAttribute('aria-disabled', (!enable).toString());
     } else {
@@ -127,10 +131,20 @@ function updateCalculateButtonState() {
 function toggleServerConfig() {
     const content = document.getElementById('server-config-content');
     const btn = document.getElementById('toggle-server-config');
+    const reservedDisplay = document.getElementById('reserved-resources-display');
     if (!content || !btn) return;
 
     const hidden = content.classList.toggle('hidden');
     btn.textContent = hidden ? 'Show' : 'Hide';
+
+    // Also toggle reserved resources display
+    if (reservedDisplay) {
+        if (hidden) {
+            reservedDisplay.classList.add('hidden');
+        } else {
+            reservedDisplay.classList.remove('hidden');
+        }
+    }
 
     const summaryEl = document.getElementById('server-config-summary');
     if (hidden) {
@@ -447,6 +461,38 @@ function updateServerConfigSummary() {
     }
 }
 
+// Calculate and display reserved resources overhead in server configuration section
+function updateReservedResourcesDisplay() {
+    const cores = parseFloat(document.getElementById('cores-per-server').value) || 0;
+    const ram = parseFloat(document.getElementById('ram-per-server').value) || 0;
+    const nvmeDevices = parseInt(document.getElementById('nvme-devices-per-server').value) || 0;
+    const hddDevices = parseInt(document.getElementById('hdd-devices-per-server').value) || 0;
+    
+    // Calculate reserved resources
+    const systemCores = SYSTEM_CORES_RESERVE;
+    const storageCores = (nvmeDevices * NVME_CORES_RESERVE) + (hddDevices * HDD_CORES_RESERVE);
+    const systemRam = SYSTEM_RAM_RESERVE;
+    const storageRam = (nvmeDevices * NVME_RAM_RESERVE) + (hddDevices * HDD_RAM_RESERVE);
+    
+    // Calculate available resources
+    const availableCores = Math.max(0, cores - systemCores - storageCores);
+    const availableRam = Math.max(0, ram - systemRam - storageRam);
+    
+    // Update display
+    document.getElementById('overhead-system-cores').textContent = cores > 0 ? systemCores.toFixed(1) : '-';
+    document.getElementById('overhead-storage-cores').textContent = cores > 0 ? storageCores.toFixed(1) : '-';
+    document.getElementById('overhead-system-ram').textContent = ram > 0 ? systemRam.toFixed(0) + ' GB' : '-';
+    document.getElementById('overhead-storage-ram').textContent = ram > 0 ? storageRam.toFixed(0) + ' GB' : '-';
+    
+    // Display available resources
+    if (cores > 0 && ram > 0) {
+        document.getElementById('overhead-available').textContent =
+            `${availableCores.toFixed(1)} cores, ${availableRam.toFixed(0)} GB RAM`;
+    } else {
+        document.getElementById('overhead-available').textContent = '-';
+    }
+}
+
 // Show error message for an input
 function showErrorMessage(inputId, message) {
     const inputElement = document.getElementById(inputId);
@@ -632,7 +678,16 @@ function calculateProvidedCapacity(serverConfig, serverCount) {
         hddStorageGroups,
         nvmeStorageGroups,
         databaseCores,
-        databaseRam
+        databaseRam,
+        // Story 4: Reserved resources breakdown
+        reservedResources: {
+            systemCores,
+            storageCores,
+            systemRam,
+            storageRam,
+            availableCoresPerServer,
+            availableRamPerServer
+        }
     };
 }
 
@@ -730,6 +785,17 @@ function displayStory2Results(results) {
     document.getElementById('database-cores-result').textContent = results.databaseCores.toFixed(0);
     document.getElementById('database-ram-result').textContent = results.databaseRam.toFixed(0);
     
+    // Story 4: Display reserved resources breakdown
+    if (results.reservedResources) {
+        const reserved = results.reservedResources;
+        document.getElementById('system-cores-reserved-result').textContent = reserved.systemCores.toFixed(1);
+        document.getElementById('storage-cores-reserved-result').textContent = reserved.storageCores.toFixed(1);
+        document.getElementById('system-ram-reserved-result').textContent = reserved.systemRam.toFixed(0);
+        document.getElementById('storage-ram-reserved-result').textContent = reserved.storageRam.toFixed(0);
+        document.getElementById('available-cores-result').textContent = reserved.availableCoresPerServer.toFixed(1);
+        document.getElementById('available-ram-result').textContent = reserved.availableRamPerServer.toFixed(0);
+    }
+    
     // Show the results section
     document.getElementById('story2-results').classList.remove('hidden');
     document.getElementById('story1-results').classList.add('hidden');
@@ -791,9 +857,10 @@ document.addEventListener('DOMContentLoaded', function() {
             el.addEventListener('input', updateCalculateButtonState);
             // Pass the field ID to checkWarnings so it knows which field changed
             el.addEventListener('input', function() { checkWarnings(inputId); });
-            // Keep summary updated when server config inputs change
+            // Keep summary and reserved resources updated when server config inputs change
             if (serverConfigInputs.indexOf(inputId) !== -1) {
                 el.addEventListener('input', updateServerConfigSummary);
+                el.addEventListener('input', updateReservedResourcesDisplay);
             }
         }
     });
@@ -820,6 +887,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Ensure calculate button initial state
     updateCalculateButtonState();
+    // Update reserved resources display on initial load
+    updateReservedResourcesDisplay();
     // Do NOT run warnings on initial load; warnings should appear only after user interaction
     // Hide warning popover on initial load
     hideWarningPopover();

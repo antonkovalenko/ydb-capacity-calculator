@@ -1,0 +1,20 @@
+# AWS S3 Configuration for YDB Capacity Calculator Deployment
+# Copy this file to settings.txt and fill in your actual credentials
+# WARNING: Never commit settings.txt to version control!
+
+# Your AWS/Yandex Cloud S3 access key ID
+AWS_ACCESS_KEY_ID=your-access-key-id-here
+
+# Your AWS/Yandex Cloud S3 secret access key
+AWS_SECRET_ACCESS_KEY=your-secret-access-key-here
+
+# S3 bucket name where the application will be deployed
+AWS_BUCKET_NAME=capacity-calculator
+
+# AWS region (for Yandex Cloud, use ru-central1)
+AWS_REGION=ru-central1
+
+# S3 endpoint URL (for Yandex Cloud S3)
+# Default: https://s3.mds.yandex.net
+# If not specified, the deploy script will use the default value
+AWS_ENDPOINT_URL=https://s3.mds.yandex.net

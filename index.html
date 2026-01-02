@@ -77,6 +77,33 @@
                         </div>
                     </div>
                 </div>
+                
+                <!-- Reserved Resources Display (per server) -->
+                <div class="subsection" id="reserved-resources-display" style="margin-top: 20px; padding: 15px; background-color: #f8f9fa; border-radius: 4px; border-left: 4px solid #007bff;">
+                    <h3 style="margin-top: 0; color: #007bff;">Resource Overhead (per server)</h3>
+                    <div class="results-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+                        <div class="result-item" style="padding: 8px 0;">
+                            <span class="result-label" style="font-size: 0.9em;">System Reserved Cores:</span>
+                            <span class="result-value" id="overhead-system-cores" style="font-weight: bold;">-</span>
+                        </div>
+                        <div class="result-item" style="padding: 8px 0;">
+                            <span class="result-label" style="font-size: 0.9em;">Storage Reserved Cores:</span>
+                            <span class="result-value" id="overhead-storage-cores" style="font-weight: bold;">-</span>
+                        </div>
+                        <div class="result-item" style="padding: 8px 0;">
+                            <span class="result-label" style="font-size: 0.9em;">System Reserved RAM (GB):</span>
+                            <span class="result-value" id="overhead-system-ram" style="font-weight: bold;">-</span>
+                        </div>
+                        <div class="result-item" style="padding: 8px 0;">
+                            <span class="result-label" style="font-size: 0.9em;">Storage Reserved RAM (GB):</span>
+                            <span class="result-value" id="overhead-storage-ram" style="font-weight: bold;">-</span>
+                        </div>
+                        <div class="result-item" style="padding: 8px 0; grid-column: 1 / -1; border-top: 1px solid #dee2e6; margin-top: 8px; padding-top: 12px;">
+                            <span class="result-label" style="font-size: 0.95em; color: #28a745;">Available for Database:</span>
+                            <span class="result-value" id="overhead-available" style="font-weight: bold; color: #28a745;">-</span>
+                        </div>
+                    </div>
+                </div>
                 </div>
 
                 <div id="server-config-summary" class="server-summary hidden" aria-live="polite"></div>
@@ -184,6 +211,43 @@
                     <div class="result-item">
                         <span class="result-label">Database RAM (GB):</span>
                         <span class="result-value" id="database-ram-result"></span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Story 4: Reserved Resources Breakdown -->
+            <div class="results-section">
+                <h3>Reserved Resources (per server):</h3>
+                <div class="results-grid">
+                    <div class="result-item">
+                        <span class="result-label">System Reserved Cores:</span>
+                        <span class="result-value" id="system-cores-reserved-result"></span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Storage Reserved Cores:</span>
+                        <span class="result-value" id="storage-cores-reserved-result"></span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">System Reserved RAM (GB):</span>
+                        <span class="result-value" id="system-ram-reserved-result"></span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Storage Reserved RAM (GB):</span>
+                        <span class="result-value" id="storage-ram-reserved-result"></span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="results-section">
+                <h3>Available Resources (per server):</h3>
+                <div class="results-grid">
+                    <div class="result-item">
+                        <span class="result-label">Available Cores for Database:</span>
+                        <span class="result-value" id="available-cores-result"></span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Available RAM for Database (GB):</span>
+                        <span class="result-value" id="available-ram-result"></span>
                     </div>
                 </div>
             </div>

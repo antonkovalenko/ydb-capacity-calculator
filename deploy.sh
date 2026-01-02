@@ -64,9 +64,16 @@ load_settings() {
         exit 1
     fi
     
+    # Set default endpoint if not provided
+    if [ -z "$AWS_ENDPOINT_URL" ]; then
+        export AWS_ENDPOINT_URL="https://s3.mds.yandex.net"
+        print_message "$YELLOW" "⚠ AWS_ENDPOINT_URL not set, using default: $AWS_ENDPOINT_URL"
+    fi
+    
     print_message "$GREEN" "✓ Settings loaded successfully"
     echo "  Bucket: $AWS_BUCKET_NAME"
     echo "  Region: $AWS_REGION"
+    echo "  Endpoint: $AWS_ENDPOINT_URL"
 }
 
 # Validate required files exist
@@ -106,7 +113,7 @@ validate_files() {
 # Configure AWS CLI endpoint for Yandex Cloud
 configure_aws_endpoint() {
     # Yandex Cloud S3 endpoint
-    export AWS_ENDPOINT_URL="https://storage.yandexcloud.net"
+    export AWS_ENDPOINT_URL="https://s3.mds.yandex.net"
     print_message "$GREEN" "✓ Configured Yandex Cloud S3 endpoint"
 }
 
@@ -208,8 +215,8 @@ main() {
     # Step 2: Load settings
     load_settings
     
-    # Step 3: Configure AWS endpoint
-    configure_aws_endpoint
+    # Step 3: Verify AWS endpoint
+    verify_aws_endpoint
     
     # Step 4: Validate files
     validate_files

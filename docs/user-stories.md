@@ -48,3 +48,17 @@ I want the results for databases recources to be easily distinguishable from sto
 **So that** I always know what server configuration is used for calculation
 
 Brief configuration summary example: "32 cores, 1024 GB of RAM, 2x1TB NVMe, 4x4TB HDD"
+
+## Story 4: As capacity planner I want to know how many resources are reserved for system and storage processes
+
+**As a** capacity planner  
+**I want to** see how many resources are reserved for system and storage processes  
+**So that** I could estimnate overhead introduced by system and storage processes
+
+When server configuration is entered or altered I want to see below the server configuration form the following information:
+
+```
+### Reserved Resources per Server:
+- CPU Cores: X (Y for system, Z for storage processes: A per NVMe device, B per HDD device)
+- RAM: M GB (N GB for system, P GB for storage processes: Q GB per NVMe device, R GB per HDD device)
+```

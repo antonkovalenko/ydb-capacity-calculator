@@ -40,7 +40,10 @@ AWS_ACCESS_KEY_ID=your-access-key-id
 AWS_SECRET_ACCESS_KEY=your-secret-access-key
 AWS_BUCKET_NAME=capacity-calculator
 AWS_REGION=ru-central1
+AWS_ENDPOINT_URL=https://s3.mds.yandex.net
 ```
+
+**Note**: If `AWS_ENDPOINT_URL` is not specified, the script will use the default: `https://s3.mds.yandex.net`
 
 ⚠️ **Security Warning**: Never commit `deply/settings.txt` to version control. See [gitignore-recommendations.md](gitignore-recommendations.md) for details.
 
@@ -155,6 +158,7 @@ export AWS_ACCESS_KEY_ID="your-access-key"
 export AWS_SECRET_ACCESS_KEY="your-secret-key"
 export AWS_BUCKET_NAME="capacity-calculator"
 export AWS_REGION="ru-central1"
+export AWS_ENDPOINT_URL="https://s3.mds.yandex.net"
 
 ./deploy.sh
 ```
