@@ -2,6 +2,9 @@
 let currentStory = 1;
 // Flag to avoid showing warnings triggered by programmatic input population
 let userHasInteracted = false;
+// Track previous VDisks values to detect changes for popover display
+let previousVDisksHdd = null;
+let previousVDisksNvme = null;
 
 // Constants for configuration and business rules
 const DEFAULT_VDISKS_HDD = 8;
@@ -176,14 +179,6 @@ function calculateServers() {
     // Enforce defaults and clamp ranges (vdisks defaults: HDD=8, NVMe=16)
     enforceAndNormalizeServerConfig(serverConfig);
 
-    // If database RAM not specified but cores requested, auto-fill RAM: 50 GB per 10 cores (5 GB/core)
-    if ((capacityRequirements.databaseRam || 0) <= 0 && (capacityRequirements.databaseCores || 0) > 0) {
-        capacityRequirements.databaseRam = Math.ceil(capacityRequirements.databaseCores * RAM_PER_CORE_RATIO);
-        // update input to show auto-filled value
-        const ramEl = document.getElementById('database-ram');
-        if (ramEl) ramEl.value = capacityRequirements.databaseRam;
-    }
-
     // Validate inputs
     if (!validateInputs(serverConfig, capacityRequirements)) {
         return;
@@ -349,7 +344,7 @@ function clearWarningMessages() {
 }
 
 // Check for soft warnings according to business rules
-function checkWarnings() {
+function checkWarnings(changedFieldId = null) {
     // If the user hasn't interacted yet (page load / programmatic population), don't show warnings
     if (!userHasInteracted) {
         // clearWarningMessages();
@@ -362,32 +357,44 @@ function checkWarnings() {
     const vdisksHdd = parseInt(document.getElementById('vdisks-per-hdd-pdisk').value) || 0;
     const vdisksNvme = parseInt(document.getElementById('vdisks-per-nvme-pdisk').value) || 0;
     const popMessages = [];
+    let shouldShowPopover = false;
 
     if (nvme > MAX_DEVICES_PER_SERVER) {
         const msg = `More than ${MAX_DEVICES_PER_SERVER} NVMe devices per server is unusual; verify configuration.`;
         showWarningMessage('nvme-devices-per-server', msg);
-        popMessages.push(msg);
     }
     if (hdd > MAX_DEVICES_PER_SERVER) {
         const msg = `More than ${MAX_DEVICES_PER_SERVER} HDD devices per server is unusual; verify configuration.`;
         showWarningMessage('hdd-devices-per-server', msg);
-        popMessages.push(msg);
     }
+    
+    // Check VDisks warnings and determine if popover should be shown
     if (vdisksHdd > RECOMMENDED_MAX_VDISKS_HDD) {
         const msg = `More than ${RECOMMENDED_MAX_VDISKS_HDD} vdisks per HDD PDisk is not recommended.`;
         showWarningMessage('vdisks-per-hdd-pdisk', msg);
-        popMessages.push(msg);
+        // Show popover only if this field changed and value is different from previous
+        if (changedFieldId === 'vdisks-per-hdd-pdisk' && previousVDisksHdd !== vdisksHdd) {
+            popMessages.push(msg);
+            shouldShowPopover = true;
+            previousVDisksHdd = vdisksHdd;
+        }
     }
     if (vdisksNvme > RECOMMENDED_MAX_VDISKS_NVME) {
         const msg = `More than ${RECOMMENDED_MAX_VDISKS_NVME} vdisks per NVMe PDisk is not recommended.`;
         showWarningMessage('vdisks-per-nvme-pdisk', msg);
-        popMessages.push(msg);
+        // Show popover only if this field changed and value is different from previous
+        if (changedFieldId === 'vdisks-per-nvme-pdisk' && previousVDisksNvme !== vdisksNvme) {
+            popMessages.push(msg);
+            shouldShowPopover = true;
+            previousVDisksNvme = vdisksNvme;
+        }
     }
 
-    // Show popover dialog when warnings exist; do not block calculation
-    if (popMessages.length > 0) {
+    // Show popover dialog only when VDisks field changed and warnings exist
+    if (shouldShowPopover && popMessages.length > 0) {
         showWarningPopover(popMessages);
-    } else {
+    } else if (changedFieldId !== 'vdisks-per-hdd-pdisk' && changedFieldId !== 'vdisks-per-nvme-pdisk') {
+        // Hide popover if other fields changed
         hideWarningPopover();
     }
 }
@@ -631,10 +638,46 @@ function calculateProvidedCapacity(serverConfig, serverCount) {
 
 // Display Story 1 results
 function displayStory1Results(results) {
+    const maxServers = results.finalServers;
+    const storage = results.serversByResource.storage;
+    const cores = results.serversByResource.cores;
+    const ram = results.serversByResource.ram;
+    
+    // Calculate relative differences
+    const storageDiff = maxServers > 0 ? Math.round((maxServers - storage) / maxServers * 100) : 0;
+    const coresDiff = maxServers > 0 ? Math.round((maxServers - cores) / maxServers * 100) : 0;
+    const ramDiff = maxServers > 0 ? Math.round((maxServers - ram) / maxServers * 100) : 0;
+    
+    // Format results with relative differences
+    let storageText = storage.toString();
+    let coresText = cores.toString();
+    let ramText = ram.toString();
+    
+    if (results.dominantResource === 'storage') {
+        storageText += ' (dominant resource)';
+    } else if (storage < maxServers) {
+        const serverDiff = maxServers - storage;
+        storageText += ` (${serverDiff} servers or ${storageDiff}% less)`;
+    }
+    
+    if (results.dominantResource === 'cores') {
+        coresText += ' (dominant resource)';
+    } else if (cores < maxServers) {
+        const serverDiff = maxServers - cores;
+        coresText += ` (${serverDiff} servers or ${coresDiff}% less)`;
+    }
+    
+    if (results.dominantResource === 'ram') {
+        ramText += ' (dominant resource)';
+    } else if (ram < maxServers) {
+        const serverDiff = maxServers - ram;
+        ramText += ` (${serverDiff} servers or ${ramDiff}% less)`;
+    }
+    
     // Update the results section with calculated values
-    document.getElementById('storage-servers-result').textContent = results.serversByResource.storage;
-    document.getElementById('cores-servers-result').textContent = results.serversByResource.cores;
-    document.getElementById('ram-servers-result').textContent = results.serversByResource.ram;
+    document.getElementById('storage-servers-result').textContent = storageText;
+    document.getElementById('cores-servers-result').textContent = coresText;
+    document.getElementById('ram-servers-result').textContent = ramText;
     
     // Display dominant resource
     let dominantResourceText = '';
@@ -697,6 +740,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // Define event handler variables to ensure we can properly remove them
     let popCloseHandler, overlayClickHandler, popInnerClickHandler, documentClickHandler;
     
+    // Set copyright year dynamically
+    const copyrightYearEl = document.getElementById('copyright-year');
+    if (copyrightYearEl) {
+        copyrightYearEl.textContent = new Date().getFullYear();
+    }
+    
     // Load saved server configuration
     loadServerConfigFromLocalStorage();
     
@@ -740,13 +789,30 @@ document.addEventListener('DOMContentLoaded', function() {
             // attach a one-time marker that flags the user has interacted before running warnings
             el.addEventListener('input', function onFirst() { markUserInteracted(); el.removeEventListener('input', onFirst); }, { once: true });
             el.addEventListener('input', updateCalculateButtonState);
-            el.addEventListener('input', checkWarnings);
+            // Pass the field ID to checkWarnings so it knows which field changed
+            el.addEventListener('input', function() { checkWarnings(inputId); });
             // Keep summary updated when server config inputs change
             if (serverConfigInputs.indexOf(inputId) !== -1) {
                 el.addEventListener('input', updateServerConfigSummary);
             }
         }
     });
+    
+    // Add special handler for database-cores to auto-fill RAM
+    const dbCoresEl = document.getElementById('database-cores');
+    if (dbCoresEl) {
+        dbCoresEl.addEventListener('input', function() {
+            const cores = parseFloat(dbCoresEl.value) || 0;
+            const ramEl = document.getElementById('database-ram');
+            const currentRam = parseFloat(ramEl.value) || 0;
+            
+            // Auto-fill RAM if it's empty or zero and cores are entered
+            if (cores > 0 && currentRam <= 0) {
+                const autoRam = Math.ceil(cores * RAM_PER_CORE_RATIO);
+                ramEl.value = autoRam;
+            }
+        });
+    }
 
     // Toggle server config visibility
     const toggleBtn = document.getElementById('toggle-server-config');

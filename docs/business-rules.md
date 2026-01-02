@@ -39,6 +39,14 @@ Do not block calculation when warnings are present.
 
 Besides, open a popover dialog with the warning message and an image located in images/cthulhu.png with 640px width
 
+#### When to display popover dialog
+
+Popover dialog must be displayed when user changes the value int he VDisks per device field and it is more than recommended VDisks per device. When user was informed once do not show popover dialog again when VDisks per device was not changed.
+
+Do not show popoper dialog when any other field is changed.
+
+Show popover dialog again when user changes the VDisks per device field again and it is more than recommended VDisks per device.
+
 ## Server Calculation Algorithm
 
 Purpose of server calculation algorithm is to calculate the amount of servers required to provide requested amount of cores, ram, hdd storage groups or nvme storage groups.
