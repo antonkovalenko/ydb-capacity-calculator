@@ -110,11 +110,26 @@ validate_files() {
     print_message "$GREEN" "✓ All required files present"
 }
 
-# Configure AWS CLI endpoint for Yandex Cloud
-configure_aws_endpoint() {
-    # Yandex Cloud S3 endpoint
-    export AWS_ENDPOINT_URL="https://s3.mds.yandex.net"
-    print_message "$GREEN" "✓ Configured Yandex Cloud S3 endpoint"
+# Verify AWS endpoint connectivity
+verify_aws_endpoint() {
+    print_header "Verifying AWS Endpoint"
+    
+    # Test connection to S3 endpoint
+    print_message "$YELLOW" "Testing connection to $AWS_ENDPOINT_URL..."
+    
+    if aws s3 ls "s3://$AWS_BUCKET_NAME" --endpoint-url "$AWS_ENDPOINT_URL" --region "$AWS_REGION" &> /dev/null; then
+        print_message "$GREEN" "✓ Successfully connected to S3 bucket: $AWS_BUCKET_NAME"
+    else
+        print_message "$RED" "❌ Error: Cannot connect to S3 bucket"
+        echo ""
+        echo "Please verify:"
+        echo "  1. AWS credentials are correct"
+        echo "  2. Bucket name is correct: $AWS_BUCKET_NAME"
+        echo "  3. Endpoint URL is correct: $AWS_ENDPOINT_URL"
+        echo "  4. You have access to the bucket"
+        echo ""
+        exit 1
+    fi
 }
 
 # Upload file with correct content type
