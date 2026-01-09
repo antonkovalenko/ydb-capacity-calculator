@@ -119,12 +119,16 @@ function updateCalculateButtonState() {
         const enable = cores > 0 && ram > 0 && hasRequirements;
         btn.disabled = !enable;
         btn.setAttribute('aria-disabled', (!enable).toString());
+        btn.classList.toggle('button-disabled', !enable);
     } else {
         const serverCount = parseInt(document.getElementById('server-count').value) || 0;
-        // Rule 2: Disable button if server count is less than 9
+        // Rule 2: Mark button as disabled if server count is less than 9
         const enable = cores > 0 && ram > 0 && serverCount >= 9;
         btn.disabled = !enable;
         btn.setAttribute('aria-disabled', (!enable).toString());
+        btn.classList.toggle('button-disabled', !enable);
+        // Store the validation state for use in click handler
+        btn.dataset.validationFailed = (!enable).toString();
     }
 }
 
@@ -162,6 +166,19 @@ function toggleServerConfig() {
 // Main calculation function
 function calculate(event) {
     event.preventDefault();
+    
+    // For Story 2, check if button is in disabled state
+    if (currentStory === 2) {
+        const btn = document.getElementById('calculate-button');
+        if (btn && btn.dataset.validationFailed === 'true') {
+            const serverCount = parseInt(document.getElementById('server-count').value) || 0;
+            if (serverCount < 9) {
+                clearErrorMessages();
+                showErrorMessage('server-count', '⚠️ Cannot calculate: Mirror-3dc configuration requires at least 9 servers to work. Please enter 9 or more servers.');
+            }
+            return;
+        }
+    }
     
     if (currentStory === 1) {
         calculateServers();
@@ -239,7 +256,7 @@ function calculateCapacity() {
     
     if (serverCount < 9) {
         // Rule 2: Less than 9 servers - show error and disable calculation
-        showErrorMessage('server-count', "Mirror-3dc configuration requires at least 9 servers to work.");
+        showErrorMessage('server-count', "⚠️ Cannot calculate: Mirror-3dc configuration requires at least 9 servers to work. Please enter 9 or more servers.");
         return;
     }
     

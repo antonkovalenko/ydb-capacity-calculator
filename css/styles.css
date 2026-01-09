@@ -128,6 +128,26 @@ form {
     margin-top: 6px;
 }
 
+.helper-text {
+    font-size: 0.9em;
+    color: var(--ydb-gray);
+    margin-top: 8px;
+    padding: 10px;
+    background-color: #e7f3ff;
+    border-left: 3px solid var(--ydb-blue);
+    border-radius: 4px;
+    line-height: 1.5;
+}
+
+.helper-text strong {
+    color: var(--ydb-dark-blue);
+}
+
+.helper-text em {
+    color: var(--ydb-gray);
+    font-style: normal;
+}
+
 .input-invalid {
     border-color: var(--ydb-danger) !important;
     box-shadow: 0 0 0 3px rgba(220,53,69,0.08);
@@ -380,8 +400,13 @@ form {
 /* Error messages */
 .error-message {
     color: var(--ydb-danger);
-    font-size: 0.9em;
-    margin-top: 5px;
+    font-size: 0.95em;
+    margin-top: 8px;
+    padding: 10px;
+    background-color: #fff5f5;
+    border-left: 3px solid var(--ydb-danger);
+    border-radius: 4px;
+    font-weight: 600;
 }
 
 /* Calculate button */
@@ -400,6 +425,18 @@ form {
 
 .calculate-button:hover {
     background-color: var(--ydb-dark-blue);
+}
+
+.calculate-button:disabled,
+.calculate-button.button-disabled {
+    background-color: var(--ydb-gray);
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.calculate-button:disabled:hover,
+.calculate-button.button-disabled:hover {
+    background-color: var(--ydb-gray);
 }
 
 /* Results section */

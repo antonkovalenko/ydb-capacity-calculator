@@ -147,8 +147,13 @@
                 <h2>Server Count</h2>
                 <div class="form-grid">
                     <div class="form-group">
-                        <label for="server-count">Number of Servers:</label>
-                        <input type="number" id="server-count" min="1" step="1" value="1">
+                        <label for="server-count">Number of Servers: <span class="required">*</span></label>
+                        <input type="number" id="server-count" min="9" step="1" placeholder="e.g. 12">
+                        <div class="helper-text">
+                            <strong>Minimum requirement:</strong> Mirror-3dc configuration requires at least <strong>9 servers</strong> to work.
+                            <br>
+                            <em>Recommended:</em> 12 servers for production use.
+                        </div>
                     </div>
                 </div>
             </section>
