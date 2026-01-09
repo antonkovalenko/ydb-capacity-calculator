@@ -203,7 +203,7 @@ deploy_files() {
 verify_deployment() {
     print_header "Deployment Summary"
     
-    local website_url="https://${AWS_BUCKET_NAME}.s3-website.${AWS_REGION}.yandexcloud.net"
+    local website_url="https://${AWS_BUCKET_NAME}.s3-website.mds.yandex.net"
     
     print_message "$GREEN" "✅ Deployment completed successfully!"
     echo ""
