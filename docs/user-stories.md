@@ -62,3 +62,7 @@ When server configuration is entered or altered I want to see below the server c
 - CPU Cores: X (Y for system, Z for storage processes: A per NVMe device, B per HDD device)
 - RAM: M GB (N GB for system, P GB for storage processes: Q GB per NVMe device, R GB per HDD device)
 ```
+
+## Stopry 5: As capacity planner I want to know what settings are used for resource reservation calculations
+
+As capacity planner defining server configuration I want to be able to see current settings for resource reservation. I don't want to change them.

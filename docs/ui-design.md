@@ -19,6 +19,8 @@ When I press "Calculate" button I want to see results below the button in a clea
 
 On the same horizontal level with server configration section title I want to see hide button in the right corner. When server configuration is hidden I want to see the brief configuration summary. When server configuration is hidden I want to see a button labled "show" instead of "hide". 
 
+Close to server configutaion section title I want to see a link "View resource reservation settings" that opens a modal window with resource reservation settings used for calculations. I want to see close control for this modal window. I want to see resource reservation settings grouped by storage type (HDD/NVMe) and compute resources: CPU and them RAM.
+
 Split into two sections:
 Compute: Number of cores and RAM size per server. Two column layout for better organization.
 Storage: Number of NVMe and HDD devices, size of each device, number of VDisks per device Three column layout for better organization.

@@ -86,3 +86,11 @@ Fill RAM requested RAM size when cores are entered using proportion of 50 GB per
 
 Servers required by storage groups: 234 (dominant resource)
 Servers required by cores: 12 (222 servers or  94 % less)
+
+### Server count calculation rules
+
+Following rules apply when number of servers is entetered to calculate provided capacity.
+
+1. Cluster cannot have less than 12 servers. 
+2. When less than 9 servers are entered error message must be displayed saynign that mirror-3dc configuration requires 9 servers to work. Calculate capacity button is disabled.
+3. when less number of servers entered lies between 9 and 12 show warning message that mirror-3dc configuration requires minimum 12 servers to work in production mode. Calculation is performed using entered number of servers. Calculate capacity button is enabled. 

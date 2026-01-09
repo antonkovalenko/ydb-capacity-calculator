@@ -20,15 +20,15 @@
     <main>
         <!-- Story Toggle -->
         <div class="story-toggle" role="tablist" aria-label="Stories">
-            <button id="story1-toggle" class="toggle-button active" role="tab">Capacity Planner</button>
-            <button id="story2-toggle" class="toggle-button" role="tab">Provided Capacity</button>
+            <button id="story1-toggle" class="toggle-button active" role="tab">How many servers I need for requested resources?</button>
+            <button id="story2-toggle" class="toggle-button" role="tab">How many resources I get from a number of servers?</button>
         </div>
 
         <form id="calculator-form">
             <!-- Server Configuration Section -->
             <section class="form-section">
                 <div class="section-header">
-                    <h2>Server Configuration</h2>
+                    <h2>Server Configuration <a href="#" id="view-settings-link" class="settings-link" title="View resource reservation settings">View resource reservation settings</a></h2>
                     <button type="button" id="toggle-server-config" class="toggle-button">Hide</button>
                 </div>
 
@@ -266,6 +266,57 @@
             <div id="warning-popover-messages"></div>
             <div style="text-align:center; margin-top:12px;">
                 <img id="warning-popover-image" src="images/cthulhu.png" alt="Warning illustration" style="max-width:100%; width:640px; height:auto;">
+            </div>
+        </div>
+    </div>
+
+    <!-- Resource Reservation Settings Modal -->
+    <div id="settings-modal-overlay" class="hidden" role="dialog" aria-modal="true" aria-labelledby="settings-modal-title">
+        <div id="settings-modal">
+            <button id="settings-modal-close" class="modal-close-button" aria-label="Close settings">×</button>
+            <h3 id="settings-modal-title">Resource Reservation Settings</h3>
+            <p class="modal-description">These settings are used to calculate resource overhead and available capacity.</p>
+            
+            <div class="settings-section">
+                <h4>System Resources (per server)</h4>
+                <div class="settings-grid">
+                    <div class="setting-item">
+                        <span class="setting-label">CPU Cores Reserved:</span>
+                        <span class="setting-value">2 cores</span>
+                    </div>
+                    <div class="setting-item">
+                        <span class="setting-label">RAM Reserved:</span>
+                        <span class="setting-value">4 GB</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="settings-section">
+                <h4>NVMe Storage Resources (per device)</h4>
+                <div class="settings-grid">
+                    <div class="setting-item">
+                        <span class="setting-label">CPU Cores Reserved:</span>
+                        <span class="setting-value">6 cores</span>
+                    </div>
+                    <div class="setting-item">
+                        <span class="setting-label">RAM Reserved:</span>
+                        <span class="setting-value">6 GB</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="settings-section">
+                <h4>HDD Storage Resources (per device)</h4>
+                <div class="settings-grid">
+                    <div class="setting-item">
+                        <span class="setting-label">CPU Cores Reserved:</span>
+                        <span class="setting-value">0.5 cores</span>
+                    </div>
+                    <div class="setting-item">
+                        <span class="setting-label">RAM Reserved:</span>
+                        <span class="setting-value">2 GB</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

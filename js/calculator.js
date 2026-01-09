@@ -121,7 +121,8 @@ function updateCalculateButtonState() {
         btn.setAttribute('aria-disabled', (!enable).toString());
     } else {
         const serverCount = parseInt(document.getElementById('server-count').value) || 0;
-        const enable = cores > 0 && ram > 0 && serverCount > 0;
+        // Rule 2: Disable button if server count is less than 9
+        const enable = cores > 0 && ram > 0 && serverCount >= 9;
         btn.disabled = !enable;
         btn.setAttribute('aria-disabled', (!enable).toString());
     }
@@ -228,11 +229,23 @@ function calculateCapacity() {
     enforceAndNormalizeServerConfig(serverConfig);
 
     // Validate inputs
-    if (!validateServerConfig(serverConfig) || serverCount <= 0) {
-        if (serverCount <= 0) {
-            showErrorMessage('server-count', "Server count must be a positive number.");
-        }
+    if (!validateServerConfig(serverConfig)) {
         return;
+    }
+    
+    // Validate server count with specific rules
+    clearErrorMessages();
+    clearWarningMessages();
+    
+    if (serverCount < 9) {
+        // Rule 2: Less than 9 servers - show error and disable calculation
+        showErrorMessage('server-count', "Mirror-3dc configuration requires at least 9 servers to work.");
+        return;
+    }
+    
+    if (serverCount >= 9 && serverCount < MIN_SERVERS) {
+        // Rule 3: Between 9 and 12 servers - show warning but allow calculation
+        showWarningMessage('server-count', "Mirror-3dc configuration requires minimum 12 servers to work in production mode.");
     }
     
     // Save server configuration to local storage
@@ -915,6 +928,45 @@ document.addEventListener('DOMContentLoaded', function() {
                 const firstInput = document.getElementById('cores-per-server');
                 if (firstInput) firstInput.focus();
             }
+        });
+    }
+
+    // Wire up settings modal
+    const settingsLink = document.getElementById('view-settings-link');
+    const settingsModalOverlay = document.getElementById('settings-modal-overlay');
+    const settingsModalClose = document.getElementById('settings-modal-close');
+    
+    if (settingsLink) {
+        settingsLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (settingsModalOverlay) {
+                settingsModalOverlay.classList.remove('hidden');
+            }
+        });
+    }
+    
+    if (settingsModalClose) {
+        settingsModalClose.addEventListener('click', function() {
+            if (settingsModalOverlay) {
+                settingsModalOverlay.classList.add('hidden');
+            }
+        });
+    }
+    
+    if (settingsModalOverlay) {
+        settingsModalOverlay.addEventListener('click', function(e) {
+            // Close when clicking on the overlay (outside the modal content)
+            if (e.target === settingsModalOverlay) {
+                settingsModalOverlay.classList.add('hidden');
+            }
+        });
+    }
+    
+    // Prevent clicks inside the modal from closing it
+    const settingsModal = document.getElementById('settings-modal');
+    if (settingsModal) {
+        settingsModal.addEventListener('click', function(e) {
+            e.stopPropagation();
         });
     }
 
