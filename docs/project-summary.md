@@ -44,8 +44,8 @@ The YDB Capacity Calculator is a single-page web application designed to help ca
 1. Open `index.html` in any modern web browser
 2. Choose between calculating servers needed or capacity provided
 3. Enter server configuration parameters
-4. For Story 1: Enter capacity requirements
-5. For Story 2: Enter server count
+4. For Servers Needed mode: Enter capacity requirements
+5. For Resources Provided mode: Enter server count
 6. Click the calculate button to see results
 
 ## Testing

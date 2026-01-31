@@ -17,4 +17,4 @@ Since all the logic might be calculated in JavaScript on the client I need this 
 
 Use logo from URL https://storage.yandexcloud.net/ydb-site-assets/ydb_icon.svg in the title. Use main colours and fonts from ydb-styles.css file
 
-Never write Story 2 or Story 1 in the UI. Use story names only.
+Use descriptive mode names in the UI (e.g., 'Calculate Servers Needed', 'Calculate Capacity Provided') instead of numeric references.

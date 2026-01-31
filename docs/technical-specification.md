@@ -14,10 +14,10 @@ The application is a client-side single-page application built with:
 
 ### 1. HTML Structure
 - Header with application title and description
-- Story toggle buttons for switching between use cases
+- Mode toggle buttons for switching between use cases
 - Server configuration input section
-- Capacity requirements input section (Story 1)
-- Server count input (Story 2)
+- Capacity requirements input section (Servers Needed mode)
+- Server count input (Resources Provided mode)
 - Calculate button
 - Results display section
 - Footer with YDB information
@@ -31,14 +31,14 @@ The application is a client-side single-page application built with:
 
 ### 3. JavaScript Functionality
 - Form input validation
-- Calculation logic for both stories
+- Calculation logic for both modes
 - Local storage integration
 - Dynamic UI updates
 - Error handling
 
 ## Implementation Details
 
-### Story 1: Calculate Servers Needed
+### Servers Needed Mode
 This functionality allows users to determine how many servers are needed based on capacity requirements.
 
 #### Calculation Process
@@ -64,7 +64,7 @@ This functionality allows users to determine how many servers are needed based o
    - Takes the maximum of storage, CPU, and RAM requirements
    - Ensures minimum of 12 servers
 
-### Story 2: Calculate Capacity Provided
+### Resources Provided Mode
 This functionality allows users to determine what capacity is provided by a given server configuration and server count.
 
 #### Calculation Process
@@ -121,7 +121,7 @@ All business rules from the requirements document are implemented:
   - `user-stories.md`: User stories
   - `business-rules.md`: Business rules
   - `technical-specification.md`: This document
-  - `story2-technical-spec.md`: Detailed specification for Story 2
+  - `resources-provided-technical-spec.md`: Detailed specification for Resources Provided mode
   - `ui-design.md`: UI design documentation
   - `user-guide.md`: User instructions
   - `project-summary.md`: Project overview
@@ -134,5 +134,5 @@ The application has been tested with various configurations to ensure:
 - Accurate handling of edge cases
 - Responsive design on different devices
 - Data persistence functionality
-- Correct behavior when switching between stories
+- Correct behavior when switching between modes
 

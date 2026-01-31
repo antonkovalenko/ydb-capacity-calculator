@@ -9,9 +9,9 @@ The YDB Capacity Calculator is a tool that helps capacity planners determine ser
 1. Open `index.html` in a web browser
 2. The application will load with default values or your previously entered server configuration
 
-## Using Story 1: Calculate Servers Needed
+## Using Servers Needed Mode
 
-### 1. Select Story 1
+### 1. Select Servers Needed Mode
 - Click the "Calculate Servers Needed" button at the top of the form
 
 ### 2. Enter Server Configuration
@@ -39,13 +39,13 @@ The YDB Capacity Calculator is a tool that helps capacity planners determine ser
   - Dominant resource (the resource requiring the most servers)
   - Final server count (minimum of 12 servers or the dominant resource count)
 
-## Using Story 2: Calculate Capacity Provided
+## Using Resources Provided Mode
 
-### 1. Select Story 2
+### 1. Select Resources Provided Mode
 - Click the "Calculate Capacity Provided" button at the top of the form
 
 ### 2. Enter Server Configuration
-- Enter the same server configuration fields as in Story 1:
+- Enter the same server configuration fields as in Servers Needed mode:
   - **Cores per Server**
   - **RAM per Server (GB)**
   - **NVMe Devices per Server**

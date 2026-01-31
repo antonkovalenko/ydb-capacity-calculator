@@ -47,9 +47,10 @@ The project includes comprehensive documentation in the `docs` folder:
 - [Requirements](docs/requirements.md) - Project requirements
 - [Business Rules](docs/business-rules.md) - Calculation logic and rules
 - [Technical Specification](docs/technical-specification.md) - Architecture and implementation
-- [Story 2 Technical Specification](docs/story2-technical-spec.md) - Capacity calculation feature
+- [Resources Provided Mode Technical Specification](docs/resources-provided-technical-spec.md) - Capacity calculation feature
 - [UI Design](docs/ui-design.md) - User interface design
 - [Test Results](docs/test-results.md) - Testing documentation
+- [Smoke Tests](docs/smoke-tests.md) - Browser-based smoke test suite
 - [Project Summary](docs/project-summary.md) - Project overview
 
 ### Deployment Documentation
@@ -59,13 +60,13 @@ The project includes comprehensive documentation in the `docs` folder:
 
 ## Usage
 
-### Story 1: Calculate Servers Needed
+### Servers Needed Mode
 1. Click the "Calculate Servers Needed" toggle
 2. Enter your server configuration parameters
 3. Enter your capacity requirements
 4. Click "Calculate Servers" to see the results
 
-### Story 2: Calculate Capacity Provided
+### Resources Provided Mode
 1. Click the "Calculate Capacity Provided" toggle
 2. Enter your server configuration parameters
 3. Enter the number of servers in your configuration
@@ -94,6 +95,15 @@ The application works in all modern browsers that support:
 ## Development
 
 ### Running Tests
+
+**Browser-based Smoke Tests** (Recommended)
+1. Open `test-runner.html` in your web browser
+2. Click "Run All Tests"
+3. View results in real-time
+
+See [Smoke Tests Documentation](docs/smoke-tests.md) for detailed information.
+
+**Node.js Unit Tests**
 ```bash
 npm test
 ```
@@ -110,7 +120,8 @@ ydb-capacity-calculator/
 │   └── core.js       # Core calculation functions
 ├── images/            # Image assets
 ├── docs/              # Documentation
-├── test/              # Test files
+├── test/              # Node.js test files
+├── test-runner.html   # Browser-based smoke tests
 ├── deploy.sh          # Deployment script
 └── deply/             # Deployment configuration
     └── settings.txt   # S3 credentials (not in git)
@@ -119,8 +130,9 @@ ydb-capacity-calculator/
 ### Contributing
 1. Make changes to the application files
 2. Test locally by opening `index.html` in a browser
-3. Run tests: `npm test`
-4. Deploy: `./deploy.sh`
+3. Run smoke tests: Open `test-runner.html` and click "Run All Tests"
+4. Run unit tests: `npm test`
+5. Deploy: `./deploy.sh`
 
 ## License
 This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.

@@ -1,5 +1,5 @@
-// Current active story (1 or 2)
-let currentStory = 1;
+// Current active calculation mode ('servers-needed' or 'resources-provided')
+let currentMode = 'servers-needed';
 // Flag to avoid showing warnings triggered by programmatic input population
 let userHasInteracted = false;
 // Track previous VDisks values to detect changes for popover display
@@ -64,36 +64,36 @@ function loadServerConfigFromLocalStorage() {
     }
 }
 
-// Switch between stories
-function switchStory(storyNumber) {
-    currentStory = storyNumber;
+// Switch between calculation modes
+function switchMode(modeName) {
+    currentMode = modeName;
     
     // Update toggle buttons
-    document.getElementById('story1-toggle').classList.toggle('active', storyNumber === 1);
-    document.getElementById('story2-toggle').classList.toggle('active', storyNumber === 2);
+    document.getElementById('servers-needed-toggle').classList.toggle('active', modeName === 'servers-needed');
+    document.getElementById('resources-provided-toggle').classList.toggle('active', modeName === 'resources-provided');
     
     // Show/hide sections
-    document.getElementById('story1-section').classList.toggle('hidden', storyNumber !== 1);
-    document.getElementById('story2-section').classList.toggle('hidden', storyNumber !== 2);
+    document.getElementById('servers-needed-section').classList.toggle('hidden', modeName !== 'servers-needed');
+    document.getElementById('resources-provided-section').classList.toggle('hidden', modeName !== 'resources-provided');
     
     // Update button text
-    document.getElementById('calculate-button').textContent = 
-        storyNumber === 1 ? 'Calculate Servers' : 'Calculate Capacity';
+    document.getElementById('calculate-button').textContent =
+        modeName === 'servers-needed' ? 'Calculate Servers' : 'Calculate Capacity';
     
     // Hide results
-    document.getElementById('story1-results').classList.add('hidden');
-    document.getElementById('story2-results').classList.add('hidden');
+    document.getElementById('servers-needed-results').classList.add('hidden');
+    document.getElementById('resources-provided-results').classList.add('hidden');
     
-    // Clear capacity requirements for Story 1
-    if (storyNumber === 1) {
+    // Clear capacity requirements for servers-needed mode
+    if (modeName === 'servers-needed') {
         document.getElementById('hdd-storage-groups').value = '0';
         document.getElementById('nvme-storage-groups').value = '0';
         document.getElementById('database-cores').value = '0';
         document.getElementById('database-ram').value = '0';
     }
     
-    // Clear server count for Story 2
-    if (storyNumber === 2) {
+    // Clear server count for resources-provided mode
+    if (modeName === 'resources-provided') {
         document.getElementById('server-count').value = '1';
     }
 
@@ -109,7 +109,7 @@ function updateCalculateButtonState() {
     const cores = parseFloat(document.getElementById('cores-per-server').value) || 0;
     const ram = parseFloat(document.getElementById('ram-per-server').value) || 0;
 
-    if (currentStory === 1) {
+    if (currentMode === 'servers-needed') {
         const hddGroups = parseInt(document.getElementById('hdd-storage-groups').value) || 0;
         const nvmeGroups = parseInt(document.getElementById('nvme-storage-groups').value) || 0;
         const dbCores = parseFloat(document.getElementById('database-cores').value) || 0;
@@ -120,9 +120,9 @@ function updateCalculateButtonState() {
         btn.disabled = !enable;
         btn.setAttribute('aria-disabled', (!enable).toString());
         btn.classList.toggle('button-disabled', !enable);
-    } else {
+    } else { // resources-provided mode
         const serverCount = parseInt(document.getElementById('server-count').value) || 0;
-        // Rule 2: Mark button as disabled if server count is less than 9
+        // Mark button as disabled if server count is less than 9
         const enable = cores > 0 && ram > 0 && serverCount >= 9;
         btn.disabled = !enable;
         btn.setAttribute('aria-disabled', (!enable).toString());
@@ -167,8 +167,8 @@ function toggleServerConfig() {
 function calculate(event) {
     event.preventDefault();
     
-    // For Story 2, check if button is in disabled state
-    if (currentStory === 2) {
+    // For resources-provided mode, check if button is in disabled state
+    if (currentMode === 'resources-provided') {
         const btn = document.getElementById('calculate-button');
         if (btn && btn.dataset.validationFailed === 'true') {
             const serverCount = parseInt(document.getElementById('server-count').value) || 0;
@@ -180,14 +180,14 @@ function calculate(event) {
         }
     }
     
-    if (currentStory === 1) {
+    if (currentMode === 'servers-needed') {
         calculateServers();
     } else {
         calculateCapacity();
     }
 }
 
-// Story 1: Calculate servers needed
+// Servers Needed Mode: Calculate servers needed
 function calculateServers() {
     // Get input values
     const serverConfig = {
@@ -223,10 +223,10 @@ function calculateServers() {
     const results = performCalculations(serverConfig, capacityRequirements);
     
     // Display results
-    displayStory1Results(results);
+    displayServersNeededResults(results);
 }
 
-// Story 2: Calculate capacity provided
+// Resources Provided Mode: Calculate capacity provided
 function calculateCapacity() {
     // Get input values
     const serverConfig = {
@@ -255,13 +255,13 @@ function calculateCapacity() {
     clearWarningMessages();
     
     if (serverCount < 9) {
-        // Rule 2: Less than 9 servers - show error and disable calculation
+        // Less than 9 servers - show error and disable calculation
         showErrorMessage('server-count', "⚠️ Cannot calculate: Mirror-3dc configuration requires at least 9 servers to work. Please enter 9 or more servers.");
         return;
     }
     
     if (serverCount >= 9 && serverCount < MIN_SERVERS) {
-        // Rule 3: Between 9 and 12 servers - show warning but allow calculation
+        // Between 9 and 12 servers - show warning but allow calculation
         showWarningMessage('server-count', "Mirror-3dc configuration requires minimum 12 servers to work in production mode.");
     }
     
@@ -272,10 +272,10 @@ function calculateCapacity() {
     const results = calculateProvidedCapacity(serverConfig, serverCount);
     
     // Display results
-    displayStory2Results(results);
+    displayResourcesProvidedResults(results);
 }
 
-// Input validation for Story 1
+// Input validation for servers-needed mode
 function validateInputs(serverConfig, capacityRequirements) {
     // Clear previous error messages
     clearErrorMessages();
@@ -465,7 +465,7 @@ function hideWarningPopover() {
     overlay.classList.add('hidden');
 }
 
-// Build a brief server configuration summary for story 3
+// Build a brief server configuration summary (config-summary feature)
 function buildServerConfigSummary() {
     const cores = document.getElementById('cores-per-server').value || 'N/A';
     const ram = document.getElementById('ram-per-server').value || 'N/A';
@@ -538,7 +538,7 @@ function clearErrorMessages() {
     errorMessages.forEach(element => element.remove());
 }
 
-// Story 1: Calculation logic
+// Servers Needed Mode: Calculation logic
 function performCalculations(serverConfig, capacityRequirements) {
     // Calculate servers required by storage groups
     const storageServers = calculateStorageServers(serverConfig, capacityRequirements);
@@ -663,7 +663,7 @@ function getDominantResource(serversByResource) {
     }
 }
 
-// Story 2: Calculate provided capacity
+// Resources Provided Mode: Calculate provided capacity
 function calculateProvidedCapacity(serverConfig, serverCount) {
     // Calculate storage groups
     const hddVdisksPerServer = serverConfig.hddDevicesPerServer * serverConfig.vdisksPerHddPdisk;
@@ -709,7 +709,7 @@ function calculateProvidedCapacity(serverConfig, serverCount) {
         nvmeStorageGroups,
         databaseCores,
         databaseRam,
-        // Story 4: Reserved resources breakdown
+        // Reserved Resources Feature: breakdown
         reservedResources: {
             systemCores,
             storageCores,
@@ -721,8 +721,8 @@ function calculateProvidedCapacity(serverConfig, serverCount) {
     };
 }
 
-// Display Story 1 results
-function displayStory1Results(results) {
+// Display servers-needed mode results
+function displayServersNeededResults(results) {
     const maxServers = results.finalServers;
     const storage = results.serversByResource.storage;
     const cores = results.serversByResource.cores;
@@ -789,8 +789,8 @@ function displayStory1Results(results) {
     }
     
     // Show the results section
-    document.getElementById('story1-results').classList.remove('hidden');
-    document.getElementById('story2-results').classList.add('hidden');
+    document.getElementById('servers-needed-results').classList.remove('hidden');
+    document.getElementById('resources-provided-results').classList.add('hidden');
 
     // Clear previous highlights
     ['storage','cores','ram'].forEach(r => {
@@ -807,15 +807,15 @@ function displayStory1Results(results) {
     if (finalItem) finalItem.classList.add('final');
 }
 
-// Display Story 2 results
-function displayStory2Results(results) {
+// Display resources-provided mode results
+function displayResourcesProvidedResults(results) {
     // Update the results section with calculated values
     document.getElementById('hdd-storage-groups-result').textContent = results.hddStorageGroups;
     document.getElementById('nvme-storage-groups-result').textContent = results.nvmeStorageGroups;
     document.getElementById('database-cores-result').textContent = results.databaseCores.toFixed(0);
     document.getElementById('database-ram-result').textContent = results.databaseRam.toFixed(0);
     
-    // Story 4: Display reserved resources breakdown
+    // Reserved Resources Feature: Display breakdown
     if (results.reservedResources) {
         const reserved = results.reservedResources;
         document.getElementById('system-cores-reserved-result').textContent = reserved.systemCores.toFixed(1);
@@ -827,8 +827,8 @@ function displayStory2Results(results) {
     }
     
     // Show the results section
-    document.getElementById('story2-results').classList.remove('hidden');
-    document.getElementById('story1-results').classList.add('hidden');
+    document.getElementById('resources-provided-results').classList.remove('hidden');
+    document.getElementById('servers-needed-results').classList.add('hidden');
 }
 
 // Initialize the application
@@ -845,13 +845,13 @@ document.addEventListener('DOMContentLoaded', function() {
     // Load saved server configuration
     loadServerConfigFromLocalStorage();
     
-    // Add event listeners for story toggle
-    document.getElementById('story1-toggle').addEventListener('click', function() {
-        switchStory(1);
+    // Add event listeners for mode toggle
+    document.getElementById('servers-needed-toggle').addEventListener('click', function() {
+        switchMode('servers-needed');
     });
     
-    document.getElementById('story2-toggle').addEventListener('click', function() {
-        switchStory(2);
+    document.getElementById('resources-provided-toggle').addEventListener('click', function() {
+        switchMode('resources-provided');
     });
     
     // Add event listener for form submission

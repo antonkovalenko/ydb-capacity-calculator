@@ -2,8 +2,8 @@
 
 ## Layout Structure
 
-I want to be able to hide server configuration and enter see story selectors as large buttons.
-When I select a story I want to enter required parameters for the story in a form layout.
+I want to be able to hide server configuration and see mode selectors as large buttons.
+When I select a mode I want to enter required parameters for the mode in a form layout.
 
 When I press "Calculate" button I want to see results below the button in a clear and structured way.
 
@@ -50,7 +50,7 @@ Storage: Number of NVMe and HDD groups Two column layout.
 - Highlighting of dominant resource
 - Final server count prominently displayed
 
-I want results to be easy to read and understand. When story 2 is selected I want to see capacity provided in terms of storage groups, cores and RAM. When story 1 is selected I want to see server counts by resource type and final server count.
+I want results to be easy to read and understand. When Resources Provided mode is selected I want to see capacity provided in terms of storage groups, cores and RAM. When Servers Needed mode is selected I want to see server counts by resource type and final server count.
 
 ## Color Scheme and Styling
 

@@ -18,10 +18,10 @@
     </header>
 
     <main>
-        <!-- Story Toggle -->
-        <div class="story-toggle" role="tablist" aria-label="Stories">
-            <button id="story1-toggle" class="toggle-button active" role="tab">How many servers I need for requested resources?</button>
-            <button id="story2-toggle" class="toggle-button" role="tab">How many resources I get from a number of servers?</button>
+        <!-- Calculation Mode Toggle -->
+        <div class="story-toggle" role="tablist" aria-label="Calculation Modes">
+            <button id="servers-needed-toggle" class="toggle-button active" role="tab">How many servers I need for requested resources?</button>
+            <button id="resources-provided-toggle" class="toggle-button" role="tab">How many resources I get from a number of servers?</button>
         </div>
 
         <form id="calculator-form">
@@ -109,8 +109,8 @@
                 <div id="server-config-summary" class="server-summary hidden" aria-live="polite"></div>
             </section>
 
-            <!-- Story 1: Capacity Requirements Section -->
-            <section class="form-section" id="story1-section">
+            <!-- Servers Needed Mode: Capacity Requirements Section -->
+            <section class="form-section" id="servers-needed-section">
                 <h2>Capacity Requirements</h2>
 
                 <div class="subsection">
@@ -142,8 +142,8 @@
                 </div>
             </section>
 
-            <!-- Story 2: Server Count Section -->
-            <section class="form-section hidden" id="story2-section">
+            <!-- Resources Provided Mode: Server Count Section -->
+            <section class="form-section hidden" id="resources-provided-section">
                 <h2>Server Count</h2>
                 <div class="form-grid">
                     <div class="form-group">
@@ -163,8 +163,8 @@
             </div>
         </form>
 
-        <!-- Capacity Planner Results -->
-        <section id="story1-results" class="hidden" aria-live="polite">
+        <!-- Servers Needed Mode Results -->
+        <section id="servers-needed-results" class="hidden" aria-live="polite">
             <h2>Calculation Results — Capacity Planner</h2>
             <div class="results-grid">
                 <div id="storage-servers-item" class="result-item">
@@ -190,8 +190,8 @@
             </div>
         </section>
 
-        <!-- Provided Capacity Results -->
-        <section id="story2-results" class="hidden" aria-live="polite">
+        <!-- Resources Provided Mode Results -->
+        <section id="resources-provided-results" class="hidden" aria-live="polite">
             <h2>Calculation Results — Provided Capacity</h2>
             <div class="results-section">
                 <h3>Storage Capacity:</h3>
@@ -220,7 +220,7 @@
                 </div>
             </div>
             
-            <!-- Story 4: Reserved Resources Breakdown -->
+            <!-- Reserved Resources Feature: Breakdown -->
             <div class="results-section">
                 <h3>Reserved Resources (per server):</h3>
                 <div class="results-grid">

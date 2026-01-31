@@ -1,7 +1,7 @@
 # YDB Capacity Calculator - Test Results
 
 ## Overview
-This document summarizes the testing performed on the YDB Capacity Calculator application to verify that both Story 1 (Calculate Servers Needed) and Story 2 (Calculate Capacity Provided) work correctly according to the business rules.
+This document summarizes the testing performed on the YDB Capacity Calculator application to verify that both Servers Needed mode and Resources Provided mode work correctly according to the business rules.
 
 ## Test Environment
 - Browser: Latest versions of Chrome, Firefox, and Safari
@@ -10,7 +10,7 @@ This document summarizes the testing performed on the YDB Capacity Calculator ap
 
 ## Test Cases
 
-### Story 1: Calculate Servers Needed
+### Servers Needed Mode
 
 #### Test Case 1: Basic HDD Configuration
 **Input:**
@@ -92,7 +92,7 @@ This document summarizes the testing performed on the YDB Capacity Calculator ap
 
 **Status: PASS**
 
-### Story 2: Calculate Capacity Provided
+### Resources Provided Mode
 
 #### Test Case 1: Basic HDD Configuration
 **Input:**
@@ -182,8 +182,8 @@ This document summarizes the testing performed on the YDB Capacity Calculator ap
 
 ## UI Testing
 
-### Story Toggle Functionality
-**Status: PASS** - Users can successfully switch between Story 1 and Story 2, with appropriate form sections and buttons displayed.
+### Mode Toggle Functionality
+**Status: PASS** - Users can successfully switch between Servers Needed and Resources Provided modes, with appropriate form sections and buttons displayed.
 
 ### Responsive Design
 **Status: PASS** - Application layout adapts correctly to different screen sizes.
@@ -195,4 +195,4 @@ This document summarizes the testing performed on the YDB Capacity Calculator ap
 **Status: PASS** - Input validation works correctly, showing appropriate error messages for invalid inputs.
 
 ## Conclusion
-All test cases have passed, verifying that the YDB Capacity Calculator correctly implements both Story 1 (Calculate Servers Needed) and Story 2 (Calculate Capacity Provided) according to the specified business rules. The application is ready for use by capacity planners.
+All test cases have passed, verifying that the YDB Capacity Calculator correctly implements both Servers Needed mode and Resources Provided mode according to the specified business rules. The application is ready for use by capacity planners.

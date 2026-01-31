@@ -1,6 +1,6 @@
 # User Stories - YDB Capacity Calculator
 
-## Story 1: Capacity Planner
+## Servers Needed: Capacity Planner
 
 **As a** capacity planner  
 **I want to** define server configuration in terms of cores per host, NVMe and HDD devices per host and their respective size in gigabytes, provide how many storage groups are required on HDD and NVMe, how many cores and gigabytes of RAM for database nodes are requested  
@@ -22,7 +22,7 @@
 - Requirements: 10 HDD storage groups, 5 NVMe storage groups, database nodes: 100 cores, 5000 GB of RAM
 - Output: "You need X servers". Note that when server count is displayed based on on minimum server count a warning must be displayed that 12 is the minimum recommended cluster size.
 
-## Story 2: Calculate the amount of groups, RAM and cores provided by specified server configuration and server count
+## Resources Provided: Calculate the amount of groups, RAM and cores provided by specified server configuration and server count
 
 **As a** capacity planner  
 **I want to** specify server configuration and server count  
@@ -41,7 +41,7 @@ I want the results for databases recources to be easily distinguishable from sto
 - Database RAM: W GB
 ```
 
-## Story 3: When server configuration is hidden I want to see the brief configuration summary
+## Config Summary: When server configuration is hidden I want to see the brief configuration summary
 
 **As a** capacity planner  
 **I want to** see the brief server configuration summary when server configuration form is hidden  
@@ -49,7 +49,7 @@ I want the results for databases recources to be easily distinguishable from sto
 
 Brief configuration summary example: "32 cores, 1024 GB of RAM, 2x1TB NVMe, 4x4TB HDD"
 
-## Story 4: As capacity planner I want to know how many resources are reserved for system and storage processes
+## Reserved Resources: As capacity planner I want to know how many resources are reserved for system and storage processes
 
 **As a** capacity planner  
 **I want to** see how many resources are reserved for system and storage processes  
@@ -63,6 +63,6 @@ When server configuration is entered or altered I want to see below the server c
 - RAM: M GB (N GB for system, P GB for storage processes: Q GB per NVMe device, R GB per HDD device)
 ```
 
-## Stopry 5: As capacity planner I want to know what settings are used for resource reservation calculations
+## Reservation Settings: As capacity planner I want to know what settings are used for resource reservation calculations
 
 As capacity planner defining server configuration I want to be able to see current settings for resource reservation. I don't want to change them.

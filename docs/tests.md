@@ -7,7 +7,7 @@ This document contains smoke test cases for the YDB Capacity Calculator applicat
 
 ---
 
-## Story 1: Calculate Servers Needed
+## Servers Needed Mode: Calculate Servers Needed
 
 **User Story**: As a capacity planner, I want to define server configuration and capacity requirements so that I receive the number of servers required.
 
@@ -88,7 +88,7 @@ This document contains smoke test cases for the YDB Capacity Calculator applicat
 
 ---
 
-## Story 2: Calculate Capacity Provided
+## Resources Provided Mode: Calculate Capacity Provided
 
 **User Story**: As a capacity planner, I want to specify server configuration and server count so that I receive the capacity provided.
 
@@ -158,7 +158,7 @@ This document contains smoke test cases for the YDB Capacity Calculator applicat
 
 ---
 
-## Story 3: Server Configuration Summary
+## Config Summary Feature: Server Configuration Summary
 
 **User Story**: As a capacity planner, I want to see a brief server configuration summary when the configuration form is hidden.
 
@@ -220,7 +220,7 @@ This document contains smoke test cases for the YDB Capacity Calculator applicat
 
 ---
 
-## Story 4: Reserved Resources Display
+## Reserved Resources Feature: Display
 
 **User Story**: As a capacity planner, I want to see how many resources are reserved for system and storage processes.
 
@@ -248,7 +248,7 @@ This document contains smoke test cases for the YDB Capacity Calculator applicat
 
 ---
 
-### Test Case 4.2: Reserved Resources in Story 2 Results
+### Test Case 4.2: Reserved Resources in Resources Provided Mode Results
 **Objective**: Verify that reserved resources breakdown appears in capacity calculation results.
 
 **Preconditions**: 
@@ -290,7 +290,7 @@ This document contains smoke test cases for the YDB Capacity Calculator applicat
 
 ---
 
-## Story 5: Resource Reservation Settings Display
+## Reservation Settings Feature: Display
 
 **User Story**: As a capacity planner, I want to see current settings for resource reservation.
 
@@ -506,11 +506,11 @@ To ensure no regressions are introduced when making changes to the YDB Capacity 
 - Edge (latest)
 
 **Test Checklist**:
-- [ ] All Story 1 tests pass
-- [ ] All Story 2 tests pass
-- [ ] All Story 3 tests pass
-- [ ] All Story 4 tests pass
-- [ ] All Story 5 tests pass
+- [ ] All Servers Needed mode tests pass
+- [ ] All Resources Provided mode tests pass
+- [ ] All Config Summary feature tests pass
+- [ ] All Reserved Resources feature tests pass
+- [ ] All Reservation Settings feature tests pass
 - [ ] All validation tests pass
 - [ ] Configuration persists across page reloads
 - [ ] No console errors appear
@@ -534,17 +534,17 @@ npm install --save-dev puppeteer
 **Sample Playwright Test Structure**:
 
 ```javascript
-// tests/e2e/story1.spec.js
+// tests/e2e/servers-needed.spec.js
 const { test, expect } = require('@playwright/test');
 
-test.describe('Story 1: Calculate Servers Needed', () => {
+test.describe('Servers Needed Mode: Calculate Servers Needed', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('http://localhost:8000'); // or your deployment URL
   });
 
   test('Test Case 1.1: Basic Server Calculation', async ({ page }) => {
-    // Ensure Story 1 is selected
-    await page.click('#story1-toggle');
+    // Ensure Servers Needed mode is selected
+    await page.click('#servers-needed-toggle');
     
     // Enter server configuration
     await page.fill('#cores-per-server', '32');
@@ -564,12 +564,12 @@ test.describe('Story 1: Calculate Servers Needed', () => {
     await page.click('#calculate-button');
     
     // Verify results appear
-    await expect(page.locator('#story1-results')).toBeVisible();
+    await expect(page.locator('#servers-needed-results')).toBeVisible();
     await expect(page.locator('#final-servers-result')).toContainText(/\d+/);
   });
   
   test('Test Case 1.2: Validation - No Storage', async ({ page }) => {
-    await page.click('#story1-toggle');
+    await page.click('#servers-needed-toggle');
     
     // Enter config without storage
     await page.fill('#cores-per-server', '32');
@@ -594,7 +594,7 @@ npx playwright test
 npx playwright test --ui
 
 # Run specific test file
-npx playwright test tests/e2e/story1.spec.js
+npx playwright test tests/e2e/servers-needed.spec.js
 ```
 
 ---
@@ -658,13 +658,13 @@ jobs:
 **Implementation**:
 
 ```javascript
-test('Visual regression - Story 1 results', async ({ page }) => {
+test('Visual regression - Servers Needed results', async ({ page }) => {
   // Setup and calculate
   await page.goto('http://localhost:8000');
   // ... perform calculation ...
   
   // Take screenshot
-  await expect(page.locator('#story1-results')).toHaveScreenshot('story1-results.png');
+  await expect(page.locator('#servers-needed-results')).toHaveScreenshot('servers-needed-results.png');
 });
 ```
 

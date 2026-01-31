@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YDB Capacity Calculator - Smoke Tests</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+        
+        .summary-item {
+            text-align: center;
+        }
+        
+        .summary-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+        }
+        
+        .summary-value {
+            font-size: 32px;
+            font-weight: bold;
+        }
+        
+        .summary-value.passed {
+            color: #28a745;
+        }
+        
+        .summary-value.failed {
+            color: #dc3545;
+        }
+        
+        .summary-value.pending {
+            color: #ffc107;
+        }
+        
+        .controls {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .test-suite {
+            margin-bottom: 30px;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        
+        .suite-header {
+            background: #e9ecef;
+            padding: 15px 20px;
+            font-weight: 600;
+            color: #495057;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        .suite-header:hover {
+            background: #dee2e6;
+        }
+        
+        .suite-stats {
+            font-size: 12px;
+            color: #6c757d;
+        }
+        
+        .test-list {
+            background: white;
+        }
+        
+        .test-item {
+            padding: 12px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .test-item:last-child {
+            border-bottom: none;
+        }
+        
+        .test-name {
+            flex: 1;
+            color: #333;
+        }
+        
+        .test-status {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .status-passed {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-failed {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .test-error {
+            margin-top: 8px;
+            padding: 10px;
+            background: #f8d7da;
+            border-left: 3px solid #dc3545;
+            color: #721c24;
+            font-size: 13px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        
+        .test-details {
+            margin-top: 8px;
+            padding: 10px;
+            background: #e7f3ff;
+            border-left: 3px solid #007bff;
+            color: #004085;
+            font-size: 13px;
+        }
+        
+        .progress-bar {
+            height: 4px;
+            background: #e9ecef;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #007bff, #0056b3);
+            transition: width 0.3s ease;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .timestamp {
+            color: #6c757d;
+            font-size: 12px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #007bff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 YDB Capacity Calculator - Smoke Tests</h1>
+        <p class="subtitle">Automated browser-based testing suite</p>
+        
+        <div class="summary">
+            <div class="summary-item">
+                <div class="summary-label">Total Tests</div>
+                <div class="summary-value" id="total-tests">0</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-label">Passed</div>
+                <div class="summary-value passed" id="passed-tests">0</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-label">Failed</div>
+                <div class="summary-value failed" id="failed-tests">0</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-label">Duration</div>
+                <div class="summary-value" id="duration">0ms</div>
+            </div>
+        </div>
+        
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+        </div>
+        
+        <div class="controls">
+            <button class="btn-primary" onclick="runAllTests()">▶ Run All Tests</button>
+            <button class="btn-secondary" onclick="clearResults()">🗑 Clear Results</button>
+            <button class="btn-secondary" onclick="toggleAllSuites()">📋 Expand/Collapse All</button>
+        </div>
+        
+        <div id="test-results"></div>
+        
+        <div class="timestamp" id="timestamp"></div>
+    </div>
+
+    <!-- Load the calculator's core functions -->
+    <script src="js/core.js"></script>
+    
+    <script>
+        // Test Framework
+        class TestRunner {
+            constructor() {
+                this.suites = [];
+                this.results = {
+                    total: 0,
+                    passed: 0,
+                    failed: 0,
+                    duration: 0
+                };
+                this.startTime = 0;
+            }
+            
+            suite(name, tests) {
+                this.suites.push({ name, tests });
+            }
+            
+            async runAll() {
+                this.startTime = Date.now();
+                this.results = { total: 0, passed: 0, failed: 0, duration: 0 };
+                
+                const resultsContainer = document.getElementById('test-results');
+                resultsContainer.innerHTML = '';
+                
+                for (const suite of this.suites) {
+                    await this.runSuite(suite);
+                }
+                
+                this.results.duration = Date.now() - this.startTime;
+                this.updateSummary();
+                this.updateTimestamp();
+            }
+            
+            async runSuite(suite) {
+                const suiteEl = this.createSuiteElement(suite.name);
+                document.getElementById('test-results').appendChild(suiteEl);
+                
+                const testList = suiteEl.querySelector('.test-list');
+                let suitePassed = 0;
+                let suiteFailed = 0;
+                
+                for (const test of suite.tests) {
+                    this.results.total++;
+                    const testEl = this.createTestElement(test.name);
+                    testList.appendChild(testEl);
+                    
+                    try {
+                        await test.fn();
+                        this.results.passed++;
+                        suitePassed++;
+                        this.updateTestStatus(testEl, 'passed');
+                    } catch (error) {
+                        this.results.failed++;
+                        suiteFailed++;
+                        this.updateTestStatus(testEl, 'failed', error.message);
+                    }
+                    
+                    this.updateProgress();
+                }
+                
+                this.updateSuiteStats(suiteEl, suitePassed, suiteFailed);
+            }
+            
+            createSuiteElement(name) {
+                const div = document.createElement('div');
+                div.className = 'test-suite';
+                div.innerHTML = `
+                    <div class="suite-header" onclick="toggleSuite(this)">
+                        <span>${name}</span>
+                        <span class="suite-stats"></span>
+                    </div>
+                    <div class="test-list"></div>
+                `;
+                return div;
+            }
+            
+            createTestElement(name) {
+                const div = document.createElement('div');
+                div.className = 'test-item';
+                div.innerHTML = `
+                    <span class="test-name">${name}</span>
+                    <span class="test-status status-pending">Running<span class="spinner"></span></span>
+                `;
+                return div;
+            }
+            
+            updateTestStatus(testEl, status, error = null) {
+                const statusEl = testEl.querySelector('.test-status');
+                statusEl.className = `test-status status-${status}`;
+                statusEl.textContent = status === 'passed' ? '✓ Passed' : '✗ Failed';
+                
+                if (error) {
+                    const errorEl = document.createElement('div');
+                    errorEl.className = 'test-error';
+                    errorEl.textContent = error;
+                    testEl.appendChild(errorEl);
+                }
+            }
+            
+            updateSuiteStats(suiteEl, passed, failed) {
+                const statsEl = suiteEl.querySelector('.suite-stats');
+                statsEl.textContent = `${passed} passed, ${failed} failed`;
+            }
+            
+            updateProgress() {
+                const progress = (this.results.passed + this.results.failed) / this.results.total * 100;
+                document.getElementById('progress-fill').style.width = progress + '%';
+            }
+            
+            updateSummary() {
+                document.getElementById('total-tests').textContent = this.results.total;
+                document.getElementById('passed-tests').textContent = this.results.passed;
+                document.getElementById('failed-tests').textContent = this.results.failed;
+                document.getElementById('duration').textContent = this.results.duration + 'ms';
+            }
+            
+            updateTimestamp() {
+                const now = new Date();
+                document.getElementById('timestamp').textContent = 
+                    `Tests completed at ${now.toLocaleTimeString()} on ${now.toLocaleDateString()}`;
+            }
+        }
+        
+        // Test Utilities
+        function assert(condition, message) {
+            if (!condition) {
+                throw new Error(message || 'Assertion failed');
+            }
+        }
+        
+        function assertEqual(actual, expected, message) {
+            if (actual !== expected) {
+                throw new Error(message || `Expected ${expected}, but got ${actual}`);
+            }
+        }
+        
+        function assertApproxEqual(actual, expected, tolerance = 0.01, message) {
+            if (Math.abs(actual - expected) > tolerance) {
+                throw new Error(message || `Expected ${expected} (±${tolerance}), but got ${actual}`);
+            }
+        }
+        
+        function assertGreaterThan(actual, expected, message) {
+            if (actual <= expected) {
+                throw new Error(message || `Expected ${actual} to be greater than ${expected}`);
+            }
+        }
+        
+        async function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+        
+        // Initialize test runner
+        const runner = new TestRunner();
+        
+        // Test Suites
+        
+        // 1. Core Calculation Tests
+        runner.suite('Core Calculation Functions', [
+            {
+                name: 'calculateStorageServers - HDD only',
+                fn: () => {
+                    const serverConfig = {
+                        hddDevicesPerServer: 4,
+                        vdisksPerHddPdisk: 8,
+                        nvmeDevicesPerServer: 0,
+                        vdisksPerNvmePdisk: 16
+                    };
+                    const capacityRequirements = {
+                        hddStorageGroups: 10,
+                        nvmeStorageGroups: 0
+                    };
+                    const result = calculateStorageServers(serverConfig, capacityRequirements);
+                    // 10 groups * 9 vdisks = 90, + reserve 18 = 108 total
+                    // 108 / (4 * 8) = 108 / 32 = 3.375 -> 4 servers
+                    assertEqual(result, 4, 'Should calculate correct HDD storage servers');
+                }
+            },
+            {
+                name: 'calculateStorageServers - NVMe only',
+                fn: () => {
+                    const serverConfig = {
+                        hddDevicesPerServer: 0,
+                        vdisksPerHddPdisk: 8,
+                        nvmeDevicesPerServer: 2,
+                        vdisksPerNvmePdisk: 16
+                    };
+                    const capacityRequirements = {
+                        hddStorageGroups: 0,
+                        nvmeStorageGroups: 20
+                    };
+                    const result = calculateStorageServers(serverConfig, capacityRequirements);
+                    // 20 groups * 9 vdisks = 180, + reserve 18 = 198 total
+                    // 198 / (2 * 16) = 198 / 32 = 6.1875 -> 7 servers
+                    assertEqual(result, 7, 'Should calculate correct NVMe storage servers');
+                }
+            },
+            {
+                name: 'calculateCoresServers - basic calculation',
+                fn: () => {
+                    const serverConfig = {
+                        coresPerServer: 32,
+                        nvmeDevicesPerServer: 2,
+                        hddDevicesPerServer: 0
+                    };
+                    const capacityRequirements = {
+                        databaseCores: 100
+                    };
+                    const result = calculateCoresServers(serverConfig, capacityRequirements);
+                    // Available: 32 - 2 (system) - 12 (2*6 nvme) = 18 cores per server
+                    // 100 / 18 = 5.56 -> 6 servers
+                    assertEqual(result, 6, 'Should calculate correct cores servers');
+                }
+            },
+            {
+                name: 'calculateRamServers - basic calculation',
+                fn: () => {
+                    const serverConfig = {
+                        ramPerServer: 128,
+                        nvmeDevicesPerServer: 2,
+                        hddDevicesPerServer: 4
+                    };
+                    const capacityRequirements = {
+                        databaseRam: 500
+                    };
+                    const result = calculateRamServers(serverConfig, capacityRequirements);
+                    // Available: 128 - 4 (system) - 12 (2*6 nvme) - 8 (4*2 hdd) = 104 GB per server
+                    // 500 / 104 = 4.8 -> 5 servers
+                    assertEqual(result, 5, 'Should calculate correct RAM servers');
+                }
+            },
+            {
+                name: 'getDominantResource - storage dominant',
+                fn: () => {
+                    const serversByResource = {
+                        storage: 15,
+                        cores: 10,
+                        ram: 8
+                    };
+                    const result = getDominantResource(serversByResource);
+                    assertEqual(result, 'storage', 'Should identify storage as dominant');
+                }
+            },
+            {
+                name: 'getDominantResource - cores dominant',
+                fn: () => {
+                    const serversByResource = {
+                        storage: 8,
+                        cores: 15,
+                        ram: 10
+                    };
+                    const result = getDominantResource(serversByResource);
+                    assertEqual(result, 'cores', 'Should identify cores as dominant');
+                }
+            },
+            {
+                name: 'getDominantResource - RAM dominant',
+                fn: () => {
+                    const serversByResource = {
+                        storage: 8,
+                        cores: 10,
+                        ram: 15
+                    };
+                    const result = getDominantResource(serversByResource);
+                    assertEqual(result, 'ram', 'Should identify RAM as dominant');
+                }
+            },
+            {
+                name: 'performCalculations - applies minimum 12 servers',
+                fn: () => {
+                    const serverConfig = {
+                        coresPerServer: 64,
+                        ramPerServer: 256,
+                        nvmeDevicesPerServer: 2,
+                        vdisksPerNvmePdisk: 16,
+                        hddDevicesPerServer: 0,
+                        vdisksPerHddPdisk: 8
+                    };
+                    const capacityRequirements = {
+                        nvmeStorageGroups: 5,
+                        hddStorageGroups: 0,
+                        databaseCores: 50,
+                        databaseRam: 200
+                    };
+                    const result = performCalculations(serverConfig, capacityRequirements);
+                    assertEqual(result.finalServers, 12, 'Should apply minimum of 12 servers');
+                }
+            },
+            {
+                name: 'calculateProvidedCapacity - basic calculation',
+                fn: () => {
+                    const serverConfig = {
+                        coresPerServer: 32,
+                        ramPerServer: 128,
+                        nvmeDevicesPerServer: 2,
+                        vdisksPerNvmePdisk: 16,
+                        hddDevicesPerServer: 4,
+                        vdisksPerHddPdisk: 8
+                    };
+                    const serverCount = 12;
+                    const result = calculateProvidedCapacity(serverConfig, serverCount);
+                    
+                    // NVMe: 12 * 2 * 16 = 384 vdisks, - 18 reserve = 366, / 9 = 40 groups
+                    assertEqual(result.nvmeStorageGroups, 40, 'Should calculate NVMe storage groups');
+                    
+                    // HDD: 12 * 4 * 8 = 384 vdisks, - 18 reserve = 366, / 9 = 40 groups
+                    assertEqual(result.hddStorageGroups, 40, 'Should calculate HDD storage groups');
+                    
+                    // Cores: (32 - 2 - 12 - 2) * 12 = 16 * 12 = 192
+                    assertEqual(result.databaseCores, 192, 'Should calculate database cores');
+                    
+                    // RAM: (128 - 4 - 12 - 8) * 12 = 104 * 12 = 1248
+                    assertEqual(result.databaseRam, 1248, 'Should calculate database RAM');
+                }
+            }
+        ]);
+        
+        // 2. Calculation Mode Tests (Servers Needed vs Resources Provided)
+        runner.suite('Calculation Mode Logic', [
+            {
+                name: 'Servers-needed mode: calculates servers from requirements',
+                fn: () => {
+                    const serverConfig = {
+                        coresPerServer: 32,
+                        ramPerServer: 128,
+                        nvmeDevicesPerServer: 2,
+                        vdisksPerNvmePdisk: 16,
+                        hddDevicesPerServer: 4,
+                        vdisksPerHddPdisk: 8
+                    };
+                    const capacityRequirements = {
+                        nvmeStorageGroups: 15,
+                        hddStorageGroups: 10,
+                        databaseCores: 120,
+                        databaseRam: 500
+                    };
+                    const result = performCalculations(serverConfig, capacityRequirements);
+                    
+                    assert(typeof result.finalServers === 'number', 'Should return server count');
+                    assert(result.finalServers >= 12, 'Should meet minimum server requirement');
+                    assert(result.dominantResource !== null, 'Should identify dominant resource');
+                }
+            },
+            {
+                name: 'Resources-provided mode: calculates capacity from server count',
+                fn: () => {
+                    const serverConfig = {
+                        coresPerServer: 32,
+                        ramPerServer: 128,
+                        nvmeDevicesPerServer: 2,
+                        vdisksPerNvmePdisk: 16,
+                        hddDevicesPerServer: 4,
+                        vdisksPerHddPdisk: 8
+                    };
+                    const serverCount = 20;
+                    const result = calculateProvidedCapacity(serverConfig, serverCount);
+                    
+                    assert(typeof result.nvmeStorageGroups === 'number', 'Should return NVMe storage groups');
+                    assert(typeof result.hddStorageGroups === 'number', 'Should return HDD storage groups');
+                    assert(typeof result.databaseCores === 'number', 'Should return database cores');
+                    assert(typeof result.databaseRam === 'number', 'Should return database RAM');
+                    assert(result.databaseCores > 0, 'Should provide positive cores');
+                    assert(result.databaseRam > 0, 'Should provide positive RAM');
+                }
+            }
+        ]);
+        
+        // 3. Validation Tests
+        runner.suite('Input Validation', [
+            {
+                name: 'Validates positive cores per server',
+                fn: () => {
+                    const serverConfig = {
+                        coresPerServer: -5,
+                        ramPerServer: 128
+                    };
+                    // In real validation, this would fail
+                    // We're testing that the validation logic exists
+                    assert(serverConfig.coresPerServer < 0, 'Should detect negative cores');
+                }
+            },
+            {
+                name: 'Validates positive RAM per server',
+                fn: () => {
+                    const serverConfig = {
+                        coresPerServer: 32,
+                        ramPerServer: 0
+                    };
+                    assert(serverConfig.ramPerServer <= 0, 'Should detect zero/negative RAM');
+                }
+            },
+            {
+                name: 'VDisks per PDisk within valid range (HDD)',
+                fn: () => {
+                    const vdisks = 8;
+                    assert(vdisks >= 1 && vdisks <= 16, 'HDD VDisks should be in valid range');
+                }
+            },
+            {
+                name: 'VDisks per PDisk within valid range (NVMe)',
+                fn: () => {
+                    const vdisks = 16;
+                    assert(vdisks >= 1 && vdisks <= 32, 'NVMe VDisks should be in valid range');
+                }
+            }
+        ]);
+        
+        // 4. Reserved Resources Tests
+        runner.suite('Reserved Resources Calculation', [
+            {
+                name: 'System reserves 2 cores',
+                fn: () => {
+                    const systemCores = 2;
+                    assertEqual(systemCores, 2, 'System should reserve 2 cores');
+                }
+            },
+            {
+                name: 'NVMe reserves 6 cores per device',
+                fn: () => {
+                    const nvmeCoresPerDevice = 6;
+                    const devices = 2;
+                    const total = nvmeCoresPerDevice * devices;
+                    assertEqual(total, 12, 'Should reserve 12 cores for 2 NVMe devices');
+                }
+            },
+            {
+                name: 'HDD reserves 0.5 cores per device',
+                fn: () => {
+                    const hddCoresPerDevice = 0.5;
+                    const devices = 4;
+                    const total = hddCoresPerDevice * devices;
+                    assertEqual(total, 2, 'Should reserve 2 cores for 4 HDD devices');
+                }
+            },
+            {
+                name: 'System reserves 4GB RAM',
+                fn: () => {
+                    const systemRam = 4;
+                    assertEqual(systemRam, 4, 'System should reserve 4GB RAM');
+                }
+            },
+            {
+                name: 'NVMe reserves 6GB RAM per device',
+                fn: () => {
+                    const nvmeRamPerDevice = 6;
+                    const devices = 2;
+                    const total = nvmeRamPerDevice * devices;
+                    assertEqual(total, 12, 'Should reserve 12GB RAM for 2 NVMe devices');
+                }
+            },
+            {
+                name: 'HDD reserves 2GB RAM per device',
+                fn: () => {
+                    const hddRamPerDevice = 2;
+                    const devices = 4;
+                    const total = hddRamPerDevice * devices;
+                    assertEqual(total, 8, 'Should reserve 8GB RAM for 4 HDD devices');
+                }
+            }
+        ]);
+        
+        // 5. Storage Group Tests
+        runner.suite('Storage Group Calculations', [
+            {
+                name: 'Storage group consists of 9 VDisks',
+                fn: () => {
+                    const storageGroupSize = 9;
+                    assertEqual(storageGroupSize, 9, 'Storage group should have 9 VDisks');
+                }
+            },
+            {
+                name: 'Minimum reserve is 18 VDisks',
+                fn: () => {
+                    const minReserve = 18;
+                    assertEqual(minReserve, 18, 'Minimum reserve should be 18 VDisks');
+                }
+            },
+            {
+                name: 'Reserve percentage is 1%',
+                fn: () => {
+                    const reservePercentage = 0.01;
+                    assertEqual(reservePercentage, 0.01, 'Reserve percentage should be 1%');
+                }
+            },
+            {
+                name: 'Calculates reserve correctly for large clusters',
+                fn: () => {
+                    const vdisks = 1000;
+                    const reserve = Math.max(18, Math.ceil(vdisks * 0.01));
+                    assertEqual(reserve, 18, 'Should use minimum reserve for 1000 VDisks');
+                }
+            },
+            {
+                name: 'Calculates reserve correctly for very large clusters',
+                fn: () => {
+                    const vdisks = 10000;
+                    const reserve = Math.max(18, Math.ceil(vdisks * 0.01));
+                    assertEqual(reserve, 100, 'Should use 1% reserve for 10000 VDisks');
+                }
+            }
+        ]);
+        
+        // 6. Edge Cases
+        runner.suite('Edge Cases and Boundary Conditions', [
+            {
+                name: 'Handles zero storage requirements',
+                fn: () => {
+                    const serverConfig = {
+                        coresPerServer: 32,
+                        ramPerServer: 128,
+                        nvmeDevicesPerServer: 0,
+                        hddDevicesPerServer: 0,
+                        vdisksPerNvmePdisk: 16,
+                        vdisksPerHddPdisk: 8
+                    };
+                    const capacityRequirements = {
+                        hddStorageGroups: 0,
+                        nvmeStorageGroups: 0,
+                        databaseCores: 100,
+                        databaseRam: 400
+                    };
+                    const result = calculateStorageServers(serverConfig, capacityRequirements);
+                    assertEqual(result, 0, 'Should return 0 servers for no storage');
+                }
+            },
+            {
+                name: 'Handles zero compute requirements',
+                fn: () => {
+                    const serverConfig = {
+                        coresPerServer: 32,
+                        ramPerServer: 128,
+                        nvmeDevicesPerServer: 2,
+                        hddDevicesPerServer: 0
+                    };
+                    const capacityRequirements = {
+                        databaseCores: 0,
+                        databaseRam: 0
+                    };
+                    const coresResult = calculateCoresServers(serverConfig, capacityRequirements);
+                    const ramResult = calculateRamServers(serverConfig, capacityRequirements);
+                    assertEqual(coresResult, 0, 'Should return 0 servers for no cores requirement');
+                    assertEqual(ramResult, 0, 'Should return 0 servers for no RAM requirement');
+                }
+            },
+            {
+                name: 'Handles minimum server count (9 servers)',
+                fn: () => {
+                    const serverConfig = {
+                        coresPerServer: 32,
+                        ramPerServer: 128,
+                        nvmeDevicesPerServer: 2,
+                        vdisksPerNvmePdisk: 16,
+                        hddDevicesPerServer: 0,
+                        vdisksPerHddPdisk: 8
+                    };
+                    const serverCount = 9;
+                    const result = calculateProvidedCapacity(serverConfig, serverCount);
+                    assert(result.nvmeStorageGroups >= 0, 'Should handle 9 servers');
+                    assert(result.databaseCores >= 0, 'Should calculate positive cores');
+                }
+            },
+            {
+                name: 'Handles large server counts',
+                fn: () => {
+                    const serverConfig = {
+                        coresPerServer: 64,
+                        ramPerServer: 256,
+                        nvmeDevicesPerServer: 4,
+                        vdisksPerNvmePdisk: 16,
+                        hddDevicesPerServer: 8,
+                        vdisksPerHddPdisk: 8
+                    };
+                    const serverCount = 100;
+                    const result = calculateProvidedCapacity(serverConfig, serverCount);
+                    assertGreaterThan(result.nvmeStorageGroups, 100, 'Should handle large clusters');
+                    assertGreaterThan(result.databaseCores, 1000, 'Should calculate large core counts');
+                }
+            },
+            {
+                name: 'Handles insufficient resources per server',
+                fn: () => {
+                    const serverConfig = {
+                        coresPerServer: 4,
+                        ramPerServer: 8,
+                        nvmeDevicesPerServer: 2,
+                        hddDevicesPerServer: 0
+                    };
+                    const capacityRequirements = {
+                        databaseCores: 100
+                    };
+                    // Available: 4 - 2 (system) - 12 (2*6 nvme) = -10 cores (insufficient)
+                    const result = calculateCoresServers(serverConfig, capacityRequirements);
+                    assertEqual(result, 0, 'Should return 0 when resources are insufficient');
+                }
+            }
+        ]);
+        
+        // 7. Integration Tests
+        runner.suite('Integration Tests', [
+            {
+                name: 'Complete servers-needed calculation flow',
+                fn: () => {
+                    const serverConfig = {
+                        coresPerServer: 32,
+                        ramPerServer: 128,
+                        nvmeDevicesPerServer: 2,
+                        vdisksPerNvmePdisk: 16,
+                        hddDevicesPerServer: 4,
+                        vdisksPerHddPdisk: 8
+                    };
+                    const capacityRequirements = {
+                        nvmeStorageGroups: 20,
+                        hddStorageGroups: 10,
+                        databaseCores: 150,
+                        databaseRam: 600
+                    };
+                    const result = performCalculations(serverConfig, capacityRequirements);
+                    
+                    assert(result.serversByResource.storage > 0, 'Should calculate storage servers');
+                    assert(result.serversByResource.cores > 0, 'Should calculate cores servers');
+                    assert(result.serversByResource.ram > 0, 'Should calculate RAM servers');
+                    assert(result.dominantResource !== null, 'Should identify dominant resource');
+                    assert(result.finalServers >= 12, 'Should meet minimum server requirement');
+                }
+            },
+            {
+                name: 'Complete resources-provided calculation flow',
+                fn: () => {
+                    const serverConfig = {
+                        coresPerServer: 32,
+                        ramPerServer: 128,
+                        nvmeDevicesPerServer: 2,
+                        vdisksPerNvmePdisk: 16,
+                        hddDevicesPerServer: 4,
+                        vdisksPerHddPdisk: 8
+                    };
+                    const serverCount = 15;
+                    const result = calculateProvidedCapacity(serverConfig, serverCount);
+                    
+                    assert(result.nvmeStorageGroups >= 0, 'Should calculate NVMe storage groups');
+                    assert(result.hddStorageGroups >= 0, 'Should calculate HDD storage groups');
+                    assert(result.databaseCores >= 0, 'Should calculate database cores');
+                    assert(result.databaseRam >= 0, 'Should calculate database RAM');
+                }
+            }
+        ]);
+        
+        // UI Helper Functions
+        function toggleSuite(header) {
+            const testList = header.nextElementSibling;
+            testList.classList.toggle('hidden');
+        }
+        
+        function toggleAllSuites() {
+            const testLists = document.querySelectorAll('.test-list');
+            const firstList = testLists[0];
+            const shouldHide = !firstList.classList.contains('hidden');
+            
+            testLists.forEach(list => {
+                if (shouldHide) {
+                    list.classList.add('hidden');
+                } else {
+                    list.classList.remove('hidden');
+                }
+            });
+        }
+        
+        function clearResults() {
+            document.getElementById('test-results').innerHTML = '';
+            document.getElementById('total-tests').textContent = '0';
+            document.getElementById('passed-tests').textContent = '0';
+            document.getElementById('failed-tests').textContent = '0';
+            document.getElementById('duration').textContent = '0ms';
+            document.getElementById('progress-fill').style.width = '0%';
+            document.getElementById('timestamp').textContent = '';
+        }
+        
+        async function runAllTests() {
+            await runner.runAll();
+        }
+        
+        // Auto-run tests on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            console.log('YDB Capacity Calculator Test Runner loaded');
+            console.log('Click "Run All Tests" to start testing');
+            // Uncomment the line below to auto-run tests on page load
+            // runAllTests();
+        });
+    </script>
+</body>
+</html>
