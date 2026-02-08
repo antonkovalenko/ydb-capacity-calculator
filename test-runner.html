@@ -248,7 +248,7 @@
 <body>
     <div class="container">
         <h1>🧪 YDB Capacity Calculator - Smoke Tests</h1>
-        <p class="subtitle">Automated browser-based testing suite</p>
+        <p class="subtitle">Automated browser-based testing suite | <strong>Note:</strong> For comprehensive unit tests (56 tests), run: <code>node test/CapacityCalculator.test.js</code></p>
         
         <div class="summary">
             <div class="summary-item">
@@ -284,7 +284,9 @@
         <div class="timestamp" id="timestamp"></div>
     </div>
 
-    <!-- Load the calculator's core functions -->
+    <!-- Load the calculator's modules -->
+    <script src="js/CalculatorConfig.js"></script>
+    <script src="js/CapacityCalculator.js"></script>
     <script src="js/core.js"></script>
     
     <script>
